@@ -1,0 +1,10 @@
+type: edu
+files:
+- name: applicants.txt
+  visible: false
+- name: test/__init__.py
+  visible: false
+- name: tests.py
+  visible: false
+- name: test/application_list.py
+  visible: false
