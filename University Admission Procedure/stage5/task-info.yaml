@@ -8,3 +8,5 @@ files:
   visible: false
 - name: university_stage5.go
   visible: true
+- name: applicant_list_5.txt
+  visible: true

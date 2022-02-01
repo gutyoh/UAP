@@ -6,9 +6,15 @@ files:
   visible: false
 - name: test/application_list.py
   visible: false
+<<<<<<< Updated upstream
 - name: university_stage4.go
   visible: true
 - name: applicant_list.txt
   visible: true
 - name: output.txt
+=======
+- name: applicant_list.txt
+  visible: true
+- name: university.py
+>>>>>>> Stashed changes
   visible: true

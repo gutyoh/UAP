@@ -35,7 +35,7 @@ func main() {
 	final := map[string][]string{}
 	var used []string
 
-	file, err := os.Open("applicant_list.txt")
+	file, err := os.Open("C:\\Users\\mrgut\\Documents\\UAP\\University Admission Procedure\\stage4\\applicant_list.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
