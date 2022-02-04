@@ -1,5 +1,23 @@
 package main
 
+/*
+University Admission Procedure - Stage 4/7: Choose your path
+https://hyperskill.org/projects/163/stages/844/implement
+-------------------------------------------------------------------------------
+[Functions](https://hyperskill.org/learn/topic/1750)
+[Maps](https://hyperskill.org/learn/topic/1824)
+[Working with files in Go](https://hyperskill.org/learn/topic/1768)
+[Reading files in Go](https://hyperskill.org/learn/topic/1787)
+
+##### PENDING TOPICS #####
+-------------------------------------------------------------------------------
+[Sorting](**PENDING**)
+[Manipulating Strings⁉️ 👈😆👉💯](**PENDING**) || topic about `strings` package⁉️
+[Advanced Input Operations️️⁉️](**PENDING**) || topic about `bufio` and `scanner`❓
+-------------------------------------------------------------------------------
+###########################
+*/
+
 import (
 	"bufio"
 	"fmt"

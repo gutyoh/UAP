@@ -1,5 +1,24 @@
 package main
 
+/*
+University Admission Procedure - Stage 3/7: Going big
+https://hyperskill.org/projects/163/stages/844/implement
+-------------------------------------------------------------------------------
+[Control statements](https://hyperskill.org/learn/topic/1728)
+[Slices](https://hyperskill.org/learn/topic/1672)
+[Working with slices](https://hyperskill.org/learn/topic/1701)
+[Structs](https://hyperskill.org/learn/topic/1768)
+[Parsing data from strings](https://hyperskill.org/learn/topic/1955)
+
+##### PENDING TOPICS #####
+-------------------------------------------------------------------------------
+[Sorting](**PENDING**)
+[Manipulating Strings⁉️ 👈😆👉💯](**PENDING**) || topic about `strings` package⁉️
+[Advanced Input Operations️️⁉️](**PENDING**) || topic about `bufio` and `scanner`❓
+-------------------------------------------------------------------------------
+###########################
+*/
+
 import (
 	"bufio"
 	"fmt"
@@ -8,6 +27,11 @@ import (
 	"strconv"
 	"strings"
 )
+
+type Applicant struct {
+	name  string
+	score float64
+}
 
 func main() {
 	var nApplicants int
@@ -22,7 +46,11 @@ func main() {
 	var name string
 	var score float64
 
-	var applicantList []interface{}
+	// var applicantList []interface{}
+
+	var applicantList []Applicant
+
+	// APPLICANTLIST MUST BE CHANGED TO A STRUCT INSTEAD OF INTERFACE
 
 	for i := 0; i < nApplicants; i++ {
 		// create a new scanner
@@ -37,16 +65,20 @@ func main() {
 		score, _ = strconv.ParseFloat(s[2], 64)
 
 		// append the name and score to the applicantList as a slice of interface{}
-		applicantList = append(applicantList, []interface{}{name, score})
+		// applicantList = append(applicantList, []interface{}{name, score})
+
+		applicantList = append(applicantList, Applicant{name, score})
 	}
 
 	// sort the applicantList by highest score
 	sort.Slice(applicantList, func(i, j int) bool {
-		return applicantList[i].([]interface{})[1].(float64) > applicantList[j].([]interface{})[1].(float64)
+		// return applicantList[i].([]interface{})[1].(float64) > applicantList[j].([]interface{})[1].(float64)
+		return applicantList[i].score > applicantList[j].score
 	})
 
 	fmt.Println("Successful applicants:")
 	for i := 0; i < mApplicants; i++ {
-		fmt.Println(applicantList[i].([]interface{})[0].(string))
+		// fmt.Println(applicantList[i].([]interface{})[0].(string))
+		fmt.Println(applicantList[i].name)
 	}
 }
