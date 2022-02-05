@@ -1,7 +1,7 @@
 package main
 
 /*
-University Admission Procedure - Stage 7/7: [Something special](https://hyperskill.org/projects/163/stages/850/implement)
+[University Admission Procedure - Stage 7/7: Something special](https://hyperskill.org/projects/163/stages/850/implement)
 -------------------------------------------------------------------------------
 ##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
 */

@@ -1,7 +1,7 @@
 package main
 
 /*
-University Admission Procedure - Stage 1/7: [No one is left behind!](https://hyperskill.org/projects/163/stages/844/implement)
+[University Admission Procedure - Stage 1/7: No one is left behind!](https://hyperskill.org/projects/163/stages/844/implement)
 -------------------------------------------------------------------------------
 [Introduction to Go](https://hyperskill.org/learn/topic/1829)
 [Primitive types](https://hyperskill.org/learn/topic/1807)
