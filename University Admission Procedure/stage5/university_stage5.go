@@ -77,14 +77,6 @@ func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 	return a
 }
 
-func sortByDepartments(a []ApplicantPreferences, orderedDepartments []string) []ApplicantPreferences {
-	var sorted []ApplicantPreferences
-	for _, v := range a {
-		
-	}
-	return sorted
-}
-
 // The addApplicant checks if the a[i].name is in the 'used' slice and
 // if the first department of a[i].departments is the same as orderedDepartments[j]
 // and if the count[orderedDepartments[j]] is less than nApplicants.
@@ -149,39 +141,39 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 
 // ##### SORTING FUNCTIONS #####
 // -------------------------------------------------------------------------------
-func sortByChemScore(a Applicant) {
+func sortByChemScore(a []ApplicantPreferences) {
 	sort.Slice(a, func(i, j int) bool {
-		if a[i].score[1] != a[j].score[1] {
-			return a[i].score[1] > a[j].score[1]
+		if a[i].scores[1] != a[j].scores[1] {
+			return a[i].scores[1] > a[j].scores[1]
 		}
-		return a[i].name < a[j].name
+		return a[i].fullName < a[j].fullName
 	})
 }
 
-func sortByEngScore(a Applicant) {
+func sortByEngScore(a []ApplicantPreferences) {
 	sort.Slice(a, func(i, j int) bool {
-		if a[i].score[3] != a[j].score[3] {
-			return a[i].score[3] > a[j].score[3]
+		if a[i].scores[3] != a[j].scores[3] {
+			return a[i].scores[3] > a[j].scores[3]
 		}
-		return a[i].name < a[j].name
+		return a[i].fullName < a[j].fullName
 	})
 }
 
-func sortByMathScore(a Applicant) {
+func sortByMathScore(a []ApplicantPreferences) {
 	sort.Slice(a, func(i, j int) bool {
-		if a[i].score[2] != a[j].score[2] {
-			return a[i].score[2] > a[j].score[2]
+		if a[i].scores[2] != a[j].scores[2] {
+			return a[i].scores[2] > a[j].scores[2]
 		}
-		return a[i].name < a[j].name
+		return a[i].fullName < a[j].fullName
 	})
 }
 
-func sortByPhyScore(a Applicant) {
+func sortByPhyScore(a []ApplicantPreferences) {
 	sort.Slice(a, func(i, j int) bool {
-		if a[i].score[0] != a[j].score[0] {
-			return a[i].score[0] > a[j].score[0]
+		if a[i].scores[0] != a[j].scores[0] {
+			return a[i].scores[0] > a[j].scores[0]
 		}
-		return a[i].name < a[j].name
+		return a[i].fullName < a[j].fullName
 	})
 }
 
