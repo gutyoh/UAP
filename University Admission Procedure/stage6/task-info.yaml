@@ -8,3 +8,7 @@ files:
   visible: false
 - name: applicant_list_6.txt
   visible: true
+- name: hstest/stage/plotting_test.py
+  visible: true
+- name: hstest/testing/runner/plot_testing_runner.py
+  visible: true

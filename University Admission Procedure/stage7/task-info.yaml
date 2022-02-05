@@ -10,3 +10,7 @@ files:
   visible: true
 - name: university_stage7.go
   visible: true
+- name: hstest/stage/plotting_test.py
+  visible: true
+- name: hstest/testing/runner/plot_testing_runner.py
+  visible: true

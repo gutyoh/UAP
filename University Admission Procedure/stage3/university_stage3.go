@@ -11,14 +11,10 @@ package main
 ##### PENDING TO WRITE TOPICS #####
 -------------------------------------------------------------------------------
 [Sorting](**PENDING**)
+[Operations with strings](**PENDING**)
+[Advanced Input](**PENDING**)
 -------------------------------------------------------------------------------
 ###########################
-
-##### POSSIBLE NEW TOPICS❓ #####
-===============================================================================
-[Manipulating Strings⁉️](**PENDING**) || topic about `strings` package⁉️
-[Advanced Input Operations️️⁉️](**PENDING**) || topic about `bufio` and `scanner`❓
-===============================================================================
 */
 
 import (

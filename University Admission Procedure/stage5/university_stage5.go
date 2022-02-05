@@ -16,13 +16,17 @@ import (
 	"strings"
 )
 
-type Applicant []struct {
-	name, lastName string
-	score          []float64
-	departments    []string
+type Applicant struct {
+	fullName string
+	scores   []float64
 }
 
-func isInSlice(s []string, e string) bool {
+type ApplicantPreferences struct {
+	Applicant
+	departments []string
+}
+
+func contains(s []string, e string) bool {
 	for _, a := range s {
 		if a == e {
 			return true
@@ -53,6 +57,34 @@ func sortApplicants(final map[string][]string) {
 	}
 }
 
+func readApplicantPreferences(file *os.File) []ApplicantPreferences {
+	var a []ApplicantPreferences
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		parts := strings.Split(scanner.Text(), " ")
+
+		phyScore, _ := strconv.ParseFloat(parts[2], 64)
+		chemScore, _ := strconv.ParseFloat(parts[3], 64)
+		engScore, _ := strconv.ParseFloat(parts[4], 64)
+		mathScore, _ := strconv.ParseFloat(parts[5], 64)
+
+		scores := []float64{phyScore, chemScore, mathScore, engScore}
+
+		a = append(a, ApplicantPreferences{
+			Applicant{parts[0] + " " + parts[1], scores}, parts[6:],
+		})
+	}
+	return a
+}
+
+func sortByDepartments(a []ApplicantPreferences, orderedDepartments []string) []ApplicantPreferences {
+	var sorted []ApplicantPreferences
+	for _, v := range a {
+		
+	}
+	return sorted
+}
+
 // The addApplicant checks if the a[i].name is in the 'used' slice and
 // if the first department of a[i].departments is the same as orderedDepartments[j]
 // and if the count[orderedDepartments[j]] is less than nApplicants.
@@ -61,7 +93,7 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 		// Sort 'a' (applicants) by Chemistry exam score then add to "Biotech" department
 		sortByChemScore(a)
 		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Biotech" && count["Biotech"] < nApplicants {
+			if !contains(used, a[j].name) && a[j].departments[i] == "Biotech" && count["Biotech"] < nApplicants {
 				bioScore := strconv.FormatFloat(a[j].score[1], 'f', 2, 64)
 
 				final["Biotech"] = append(final["Biotech"], a[j].name+" "+a[j].lastName+" "+bioScore)
@@ -71,7 +103,7 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 		}
 		// Since we already sorted the applicants by Chemistry score, we can add to "Chemistry" department
 		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Chemistry" && count["Chemistry"] < nApplicants {
+			if !contains(used, a[j].name) && a[j].departments[i] == "Chemistry" && count["Chemistry"] < nApplicants {
 				chemScore := strconv.FormatFloat(a[j].score[1], 'f', 2, 64)
 
 				final["Chemistry"] = append(final["Chemistry"], a[j].name+" "+a[j].lastName+" "+chemScore)
@@ -82,7 +114,7 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 		// Sort the applicants by CS (Engineering) exam score then add to "Engineering" department
 		sortByEngScore(a)
 		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Engineering" && count["Engineering"] < nApplicants {
+			if !contains(used, a[j].name) && a[j].departments[i] == "Engineering" && count["Engineering"] < nApplicants {
 				engScore := strconv.FormatFloat(a[j].score[3], 'f', 2, 64)
 
 				final["Engineering"] = append(final["Engineering"], a[j].name+" "+a[j].lastName+" "+engScore)
@@ -93,7 +125,7 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 		// Sort the applicants by Mathematics exam score then add to "Mathematics" department
 		sortByMathScore(a)
 		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Mathematics" && count["Mathematics"] < nApplicants {
+			if !contains(used, a[j].name) && a[j].departments[i] == "Mathematics" && count["Mathematics"] < nApplicants {
 				mathScore := strconv.FormatFloat(a[j].score[2], 'f', 2, 64)
 
 				final["Mathematics"] = append(final["Mathematics"], a[j].name+" "+a[j].lastName+" "+mathScore)
@@ -104,7 +136,7 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 		// Sort the applicants by Physics exam score then add to "Physics" department
 		sortByPhyScore(a)
 		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Physics" && count["Physics"] < nApplicants {
+			if !contains(used, a[j].name) && a[j].departments[i] == "Physics" && count["Physics"] < nApplicants {
 				phyScore := strconv.FormatFloat(a[j].score[0], 'f', 2, 64)
 
 				final["Physics"] = append(final["Physics"], a[j].name+" "+a[j].lastName+" "+phyScore)

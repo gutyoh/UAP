@@ -3,6 +3,7 @@ package main
 /*
 [University Admission Procedure - Stage 2/7: Raising the bar](https://hyperskill.org/projects/163/stages/845/implement)
 -------------------------------------------------------------------------------
+[Arithmetic operations](https://hyperskill.org/learn/topic/1785)
 [Control statements](https://hyperskill.org/learn/topic/1728)
 */
 
