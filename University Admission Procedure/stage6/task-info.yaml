@@ -6,8 +6,6 @@ files:
   visible: false
 - name: test/application_list.py
   visible: false
-- name: university_stage6.go
-  visible: true
 - name: physics.txt
   visible: true
 - name: mathematics.txt
@@ -19,6 +17,4 @@ files:
 - name: biotech.txt
   visible: true
 - name: applicant_list_6.txt
-  visible: true
-- name: applicant_list.txt
   visible: true

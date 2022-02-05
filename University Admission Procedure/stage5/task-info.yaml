@@ -6,7 +6,7 @@ files:
   visible: false
 - name: test/application_list.py
   visible: false
-- name: applicant_list_5.txt
-  visible: true
 - name: university_stage5.go
+  visible: true
+- name: applicant_list_5.txt
   visible: true
