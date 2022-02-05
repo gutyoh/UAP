@@ -18,8 +18,6 @@ files:
   visible: true
 - name: hstest/stage/django_test.py
   visible: true
-- name: hstest/stage/matplotlib_test.py
-  visible: true
 - name: hstest/common/utils.py
   visible: true
 - name: hstest/common/os_utils.py

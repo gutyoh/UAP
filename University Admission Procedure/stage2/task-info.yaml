@@ -4,8 +4,6 @@ files:
   visible: false
 - name: university_stage2.go
   visible: true
-- name: hstest/stage/matplotlib_test.py
-  visible: true
 - name: hstest/stage/__init__.py
   visible: true
 - name: hstest/stage/flask_test.py

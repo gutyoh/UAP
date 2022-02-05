@@ -1,15 +1,14 @@
 import io
 import sys
-import typing
+from typing import Any, TYPE_CHECKING
 
 from hstest.common.utils import clean_text
 from hstest.dynamic.output.colored_output import BLUE, RESET
 from hstest.dynamic.output.output_mock import OutputMock
 from hstest.dynamic.security.thread_group import ThreadGroup
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from hstest.dynamic.input.input_mock import Condition
-    from hstest.testing.execution.program_executor import ProgramExecutor
 
 
 class OutputHandler:
@@ -26,13 +25,23 @@ class OutputHandler:
 
         lines = obj.strip().split('\n')
 
-        prepend = f'[{ThreadGroup.curr_group().name}] '
+        group = ThreadGroup.curr_group()
+
+        if group:
+            name = group.name
+        else:
+            name = "Root"
+
+        prepend = f'[{name}] '
 
         output = prepend + ('\n' + prepend).join(lines)
         full = BLUE + output + '\n' + RESET
 
-        OutputHandler.get_real_out().write(full)
-        OutputHandler.get_real_out().flush()
+        if group:
+            OutputHandler.get_real_out().write(full)
+            OutputHandler.get_real_out().flush()
+        else:
+            print(full, end='')
 
     @staticmethod
     def get_real_out() -> io.TextIOWrapper:
@@ -77,8 +86,8 @@ class OutputHandler:
         return clean_text(OutputHandler._mock_out.dynamic)
 
     @staticmethod
-    def get_partial_output(program: 'ProgramExecutor') -> str:
-        return clean_text(OutputHandler._mock_out.partial(program))
+    def get_partial_output(obj: Any) -> str:
+        return clean_text(OutputHandler._mock_out.partial(obj))
 
     @staticmethod
     def inject_input(user_input: str):
@@ -88,11 +97,11 @@ class OutputHandler:
         OutputHandler._mock_out.inject_input(user_input)
 
     @staticmethod
-    def install_output_handler(program: 'ProgramExecutor', condition: 'Condition'):
-        OutputHandler._mock_out.install_output_handler(program, condition)
-        OutputHandler._mock_err.install_output_handler(program, condition)
+    def install_output_handler(obj: Any, condition: 'Condition'):
+        OutputHandler._mock_out.install_output_handler(obj, condition)
+        OutputHandler._mock_err.install_output_handler(obj, condition)
 
     @staticmethod
-    def uninstall_output_handler(program: 'ProgramExecutor'):
-        OutputHandler._mock_out.uninstall_output_handler(program)
-        OutputHandler._mock_err.uninstall_output_handler(program)
+    def uninstall_output_handler(obj: Any):
+        OutputHandler._mock_out.uninstall_output_handler(obj)
+        OutputHandler._mock_err.uninstall_output_handler(obj)

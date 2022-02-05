@@ -10,8 +10,6 @@ files:
   visible: true
 - name: hstest/stage/django_test.py
   visible: true
-- name: hstest/stage/matplotlib_test.py
-  visible: true
 - name: hstest/common/utils.py
   visible: true
 - name: hstest/common/os_utils.py
@@ -137,4 +135,8 @@ files:
 - name: hstest/check_result.py
   visible: true
 - name: university_stage1.go
+  visible: true
+- name: hstest/stage/plotting_test.py
+  visible: true
+- name: hstest/testing/runner/plot_testing_runner.py
   visible: true

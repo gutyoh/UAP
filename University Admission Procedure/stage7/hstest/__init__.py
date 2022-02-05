@@ -2,6 +2,7 @@ __all__ = [
     'StageTest',
     'DjangoTest',
     'FlaskTest',
+    'PlottingTest',
 
     'TestCase',
     'SimpleTestCase',
@@ -29,3 +30,8 @@ from hstest.test_case import TestCase
 from hstest.test_case import correct
 from hstest.test_case import wrong
 from hstest.testing.tested_program import TestedProgram
+
+try:
+    from hstest.stage import PlottingTest
+except ImportError:
+    pass
