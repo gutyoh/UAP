@@ -1,9 +1,8 @@
 package main
 
 /*
-University Admission Procedure - Stage 3/7: [Going big](https://hyperskill.org/projects/163/stages/846/implement)
+[University Admission Procedure - Stage 3/7: Going big](https://hyperskill.org/projects/163/stages/846/implement)
 -------------------------------------------------------------------------------
-[Control statements](https://hyperskill.org/learn/topic/1728)
 [Slices](https://hyperskill.org/learn/topic/1672)
 [Working with slices](https://hyperskill.org/learn/topic/1701)
 [Structs](https://hyperskill.org/learn/topic/1768)

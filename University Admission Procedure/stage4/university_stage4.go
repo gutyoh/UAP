@@ -1,7 +1,7 @@
 package main
 
 /*
-University Admission Procedure - Stage 4/7: [Choose your path](https://hyperskill.org/projects/163/stages/847/implement)
+[University Admission Procedure - Stage 4/7: Choose your path](https://hyperskill.org/projects/163/stages/847/implement)
 -------------------------------------------------------------------------------
 ##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
 */
