@@ -36,17 +36,15 @@ func isInSlice(s []string, e string) bool {
 func sortApplicants(final map[string][]string) {
 	for _, v := range final {
 		sort.Slice(v, func(i, j int) bool {
+			// Get the scores of the two students
 			scoreI := strings.Split(v[i], " ")[2]
 			scoreJ := strings.Split(v[j], " ")[2]
 
+			// Get the names of the two students
 			nameI := strings.Split(v[i], " ")[0]
 			nameJ := strings.Split(v[j], " ")[0]
 
-			//if strings.Split(v[i], " ")[2] != strings.Split(v[j], " ")[2] {
-			//	return strings.Split(v[i], " ")[2] > strings.Split(v[j], " ")[2]
-			//}
-			//return strings.Split(v[i], " ")[0] < strings.Split(v[j], " ")[0]
-
+			// Sort by score first; if scores are equal, sort by first name alphabetically
 			if scoreI != scoreJ {
 				return scoreI > scoreJ
 			}
@@ -75,7 +73,7 @@ func main() {
 	}
 
 	// Open the applicant_list_4.txt file to read the applicants, their scores and department choices
-	file, err := os.Open("C:\\Users\\mrgut\\Documents\\UAP\\University Admission Procedure\\stage4\\applicant_list_4.txt")
+	file, err := os.Open("./applicant_list_4.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,13 +133,9 @@ func main() {
 	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
 	for i := 0; i < len(orderedDepartments); i++ {
 		fmt.Println(orderedDepartments[i])
-		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
-		file, err = os.Create(fileName)
-		if err != nil {
-			log.Fatal(err)
-		}
 		for _, v := range final[orderedDepartments[i]] {
 			fmt.Println(v)
 		}
+		fmt.Println()
 	}
 }

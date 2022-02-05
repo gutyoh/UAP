@@ -55,7 +55,7 @@ func main() {
 		// create a new scanner
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
-		// scan the line into data and separate the data into words
+		// Scan the line into 'data' and separate the data into words
 		data = scanner.Text()
 		s = strings.Split(data, " ")
 

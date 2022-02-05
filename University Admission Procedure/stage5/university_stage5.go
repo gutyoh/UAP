@@ -36,10 +36,19 @@ func isInSlice(s []string, e string) bool {
 func sortApplicants(final map[string][]string) {
 	for _, v := range final {
 		sort.Slice(v, func(i, j int) bool {
-			if strings.Split(v[i], " ")[2] != strings.Split(v[j], " ")[2] {
-				return strings.Split(v[i], " ")[2] > strings.Split(v[j], " ")[2]
+			// Get the scores of the two students
+			scoreI := strings.Split(v[i], " ")[2]
+			scoreJ := strings.Split(v[j], " ")[2]
+
+			// Get the names of the two students
+			nameI := strings.Split(v[i], " ")[0]
+			nameJ := strings.Split(v[j], " ")[0]
+
+			// Sort by score first; if scores are equal, sort by first name alphabetically
+			if scoreI != scoreJ {
+				return scoreI > scoreJ
 			}
-			return strings.Split(v[i], " ")[0] < strings.Split(v[j], " ")[0]
+			return nameI < nameJ
 		})
 	}
 }
@@ -208,13 +217,12 @@ func main() {
 	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
 	for i := 0; i < len(orderedDepartments); i++ {
 		fmt.Println(orderedDepartments[i])
-		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
-		file, err = os.Create(fileName)
 		if err != nil {
 			log.Fatal(err)
 		}
 		for _, v := range final[orderedDepartments[i]] {
 			fmt.Println(v)
 		}
+		fmt.Println()
 	}
 }
