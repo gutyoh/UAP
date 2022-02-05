@@ -16,6 +16,14 @@ import (
 	"strings"
 )
 
+var orderedDepartments = []string{
+	"Biotech",
+	"Chemistry",
+	"Engineering",
+	"Mathematics",
+	"Physics",
+}
+
 type Applicant struct {
 	fullName string
 	scores   []float64
@@ -41,8 +49,8 @@ func sortApplicants(final map[string][]string) {
 	for _, v := range final {
 		sort.Slice(v, func(i, j int) bool {
 			// Get the scores of the two students
-			scoreI := strings.Split(v[i], " ")[2]
-			scoreJ := strings.Split(v[j], " ")[2]
+			scoreI, _ := strconv.ParseFloat(strings.Split(v[i], " ")[2], 64)
+			scoreJ, _ := strconv.ParseFloat(strings.Split(v[j], " ")[2], 64)
 
 			// Get the names of the two students
 			nameI := strings.Split(v[i], " ")[0]
@@ -65,8 +73,8 @@ func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 
 		phyScore, _ := strconv.ParseFloat(parts[2], 64)
 		chemScore, _ := strconv.ParseFloat(parts[3], 64)
-		engScore, _ := strconv.ParseFloat(parts[4], 64)
-		mathScore, _ := strconv.ParseFloat(parts[5], 64)
+		mathScore, _ := strconv.ParseFloat(parts[4], 64)
+		engScore, _ := strconv.ParseFloat(parts[5], 64)
 
 		scores := []float64{phyScore, chemScore, mathScore, engScore}
 
@@ -80,59 +88,59 @@ func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 // The addApplicant checks if the a[i].name is in the 'used' slice and
 // if the first department of a[i].departments is the same as orderedDepartments[j]
 // and if the count[orderedDepartments[j]] is less than nApplicants.
-func addApplicant(a Applicant, used []string, count map[string]int, final map[string][]string, nApplicants int) {
+func addApplicant(a []ApplicantPreferences, used []string, count map[string]int, final map[string][]string, nApplicants int) {
 	for i := 0; i < 3; i++ {
 		// Sort 'a' (applicants) by Chemistry exam score then add to "Biotech" department
 		sortByChemScore(a)
 		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].name) && a[j].departments[i] == "Biotech" && count["Biotech"] < nApplicants {
-				bioScore := strconv.FormatFloat(a[j].score[1], 'f', 2, 64)
+			if !contains(used, a[j].fullName) && a[j].departments[i] == "Biotech" && count["Biotech"] < nApplicants {
+				bioScore := strconv.FormatFloat(a[j].scores[1], 'f', 2, 64)
 
-				final["Biotech"] = append(final["Biotech"], a[j].name+" "+a[j].lastName+" "+bioScore)
-				used = append(used, a[j].name)
+				final["Biotech"] = append(final["Biotech"], a[j].fullName+" "+bioScore)
+				used = append(used, a[j].fullName)
 				count["Biotech"]++
 			}
 		}
 		// Since we already sorted the applicants by Chemistry score, we can add to "Chemistry" department
 		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].name) && a[j].departments[i] == "Chemistry" && count["Chemistry"] < nApplicants {
-				chemScore := strconv.FormatFloat(a[j].score[1], 'f', 2, 64)
+			if !contains(used, a[j].fullName) && a[j].departments[i] == "Chemistry" && count["Chemistry"] < nApplicants {
+				chemScore := strconv.FormatFloat(a[j].scores[1], 'f', 2, 64)
 
-				final["Chemistry"] = append(final["Chemistry"], a[j].name+" "+a[j].lastName+" "+chemScore)
-				used = append(used, a[j].name)
+				final["Chemistry"] = append(final["Chemistry"], a[j].fullName+" "+chemScore)
+				used = append(used, a[j].fullName)
 				count["Chemistry"]++
 			}
 		}
 		// Sort the applicants by CS (Engineering) exam score then add to "Engineering" department
 		sortByEngScore(a)
 		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].name) && a[j].departments[i] == "Engineering" && count["Engineering"] < nApplicants {
-				engScore := strconv.FormatFloat(a[j].score[3], 'f', 2, 64)
+			if !contains(used, a[j].fullName) && a[j].departments[i] == "Engineering" && count["Engineering"] < nApplicants {
+				engScore := strconv.FormatFloat(a[j].scores[3], 'f', 2, 64)
 
-				final["Engineering"] = append(final["Engineering"], a[j].name+" "+a[j].lastName+" "+engScore)
-				used = append(used, a[j].name)
+				final["Engineering"] = append(final["Engineering"], a[j].fullName+" "+engScore)
+				used = append(used, a[j].fullName)
 				count["Engineering"]++
 			}
 		}
 		// Sort the applicants by Mathematics exam score then add to "Mathematics" department
 		sortByMathScore(a)
 		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].name) && a[j].departments[i] == "Mathematics" && count["Mathematics"] < nApplicants {
-				mathScore := strconv.FormatFloat(a[j].score[2], 'f', 2, 64)
+			if !contains(used, a[j].fullName) && a[j].departments[i] == "Mathematics" && count["Mathematics"] < nApplicants {
+				mathScore := strconv.FormatFloat(a[j].scores[2], 'f', 2, 64)
 
-				final["Mathematics"] = append(final["Mathematics"], a[j].name+" "+a[j].lastName+" "+mathScore)
-				used = append(used, a[j].name)
+				final["Mathematics"] = append(final["Mathematics"], a[j].fullName+" "+mathScore)
+				used = append(used, a[j].fullName)
 				count["Mathematics"]++
 			}
 		}
 		// Sort the applicants by Physics exam score then add to "Physics" department
 		sortByPhyScore(a)
 		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].name) && a[j].departments[i] == "Physics" && count["Physics"] < nApplicants {
-				phyScore := strconv.FormatFloat(a[j].score[0], 'f', 2, 64)
+			if !contains(used, a[j].fullName) && a[j].departments[i] == "Physics" && count["Physics"] < nApplicants {
+				phyScore := strconv.FormatFloat(a[j].scores[0], 'f', 2, 64)
 
-				final["Physics"] = append(final["Physics"], a[j].name+" "+a[j].lastName+" "+phyScore)
-				used = append(used, a[j].name)
+				final["Physics"] = append(final["Physics"], a[j].fullName+" "+phyScore)
+				used = append(used, a[j].fullName)
 				count["Physics"]++
 			}
 		}
@@ -146,6 +154,7 @@ func sortByChemScore(a []ApplicantPreferences) {
 		if a[i].scores[1] != a[j].scores[1] {
 			return a[i].scores[1] > a[j].scores[1]
 		}
+		// return strings.Split(a[i].fullName, " ")[0] < strings.Split(a[j].fullName, " ")[0]
 		return a[i].fullName < a[j].fullName
 	})
 }
@@ -184,20 +193,10 @@ func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
 
-	var a Applicant
-
 	count := map[string]int{}
 	final := map[string][]string{}
 
 	var used []string
-
-	orderedDepartments := []string{
-		"Biotech",
-		"Chemistry",
-		"Engineering",
-		"Mathematics",
-		"Physics",
-	}
 
 	file, err := os.Open("./applicant_list_5.txt")
 	if err != nil {
@@ -205,28 +204,7 @@ func main() {
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		name := strings.Split(line, " ")[0]
-		lastName := strings.Split(line, " ")[1]
-
-		phyScore, _ := strconv.ParseFloat(strings.Split(line, " ")[2], 64)
-		chemScore, _ := strconv.ParseFloat(strings.Split(line, " ")[3], 64)
-		mathScore, _ := strconv.ParseFloat(strings.Split(line, " ")[4], 64)
-		engScore, _ := strconv.ParseFloat(strings.Split(line, " ")[5], 64)
-
-		scores := []float64{phyScore, chemScore, mathScore, engScore}
-
-		departments := strings.Split(line, " ")[6:]
-
-		a = append(a, struct {
-			name, lastName string
-			score          []float64
-			departments    []string
-		}{name, lastName, scores, departments})
-	}
+	a := readApplicantPreferences(file)
 
 	/* The addApplicant function will sort the applicants starting with the Biotech dept
 	 And finishing with the Physics department.
@@ -241,9 +219,6 @@ func main() {
 	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
 	for i := 0; i < len(orderedDepartments); i++ {
 		fmt.Println(orderedDepartments[i])
-		if err != nil {
-			log.Fatal(err)
-		}
 		for _, v := range final[orderedDepartments[i]] {
 			fmt.Println(v)
 		}
