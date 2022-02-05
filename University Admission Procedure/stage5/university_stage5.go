@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type student []struct {
+type Applicant []struct {
 	name, lastName string
 	score          []float64
 	departments    []string
@@ -25,35 +25,129 @@ func isInSlice(s []string, e string) bool {
 	return false
 }
 
-// function to get the max scores and max index from the scores slice of the s struct
-// returns the max score and the index of the max score
-func getMaxScore(s []float64) (float64, int) {
-	var maxScore float64
-	var maxIndex int
-	for i, v := range s {
-		if i == 0 {
-			maxScore = v
-			maxIndex = i
-		} else if v > maxScore {
-			maxScore = v
-			maxIndex = i
+// The sortApplicants func iterates over the keys of the 'final' map and sorts
+// the students by their highest score and then by their name alphabetically
+func sortApplicants(final map[string][]string) {
+	for _, v := range final {
+		sort.Slice(v, func(i, j int) bool {
+			if strings.Split(v[i], " ")[2] != strings.Split(v[j], " ")[2] {
+				return strings.Split(v[i], " ")[2] > strings.Split(v[j], " ")[2]
+			}
+			return strings.Split(v[i], " ")[0] < strings.Split(v[j], " ")[0]
+		})
+	}
+}
+
+// The addApplicant checks if the a[i].name is in the 'used' slice and
+// if the first department of a[i].departments is the same as orderedDepartments[j]
+// and if the count[orderedDepartments[j]] is less than nApplicants.
+func addApplicant(a Applicant, used []string, count map[string]int, final map[string][]string, nApplicants int) {
+	for i := 0; i < 3; i++ {
+		// Sort 'a' (applicants) by Chemistry exam score then add to "Biotech" department
+		sortByChemScore(a)
+		for j := 0; j < len(a); j++ {
+			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Biotech" && count["Biotech"] < nApplicants {
+				bioScore := strconv.FormatFloat(a[j].score[1], 'f', 2, 64)
+
+				final["Biotech"] = append(final["Biotech"], a[j].name+" "+a[j].lastName+" "+bioScore)
+				used = append(used, a[j].name)
+				count["Biotech"]++
+			}
+		}
+		// Since we already sorted the applicants by Chemistry score, we can add to "Chemistry" department
+		for j := 0; j < len(a); j++ {
+			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Chemistry" && count["Chemistry"] < nApplicants {
+				chemScore := strconv.FormatFloat(a[j].score[1], 'f', 2, 64)
+
+				final["Chemistry"] = append(final["Chemistry"], a[j].name+" "+a[j].lastName+" "+chemScore)
+				used = append(used, a[j].name)
+				count["Chemistry"]++
+			}
+		}
+		// Sort the applicants by CS (Engineering) exam score then add to "Engineering" department
+		sortByEngScore(a)
+		for j := 0; j < len(a); j++ {
+			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Engineering" && count["Engineering"] < nApplicants {
+				engScore := strconv.FormatFloat(a[j].score[3], 'f', 2, 64)
+
+				final["Engineering"] = append(final["Engineering"], a[j].name+" "+a[j].lastName+" "+engScore)
+				used = append(used, a[j].name)
+				count["Engineering"]++
+			}
+		}
+		// Sort the applicants by Mathematics exam score then add to "Mathematics" department
+		sortByMathScore(a)
+		for j := 0; j < len(a); j++ {
+			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Mathematics" && count["Mathematics"] < nApplicants {
+				mathScore := strconv.FormatFloat(a[j].score[2], 'f', 2, 64)
+
+				final["Mathematics"] = append(final["Mathematics"], a[j].name+" "+a[j].lastName+" "+mathScore)
+				used = append(used, a[j].name)
+				count["Mathematics"]++
+			}
+		}
+		// Sort the applicants by Physics exam score then add to "Physics" department
+		sortByPhyScore(a)
+		for j := 0; j < len(a); j++ {
+			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Physics" && count["Physics"] < nApplicants {
+				phyScore := strconv.FormatFloat(a[j].score[0], 'f', 2, 64)
+
+				final["Physics"] = append(final["Physics"], a[j].name+" "+a[j].lastName+" "+phyScore)
+				used = append(used, a[j].name)
+				count["Physics"]++
+			}
 		}
 	}
-	return maxScore, maxIndex
+}
+
+func sortByChemScore(a Applicant) {
+	sort.Slice(a, func(i, j int) bool {
+		if a[i].score[1] != a[j].score[1] {
+			return a[i].score[1] > a[j].score[1]
+		}
+		return a[i].name < a[j].name
+	})
+}
+
+func sortByEngScore(a Applicant) {
+	sort.Slice(a, func(i, j int) bool {
+		if a[i].score[3] != a[j].score[3] {
+			return a[i].score[3] > a[j].score[3]
+		}
+		return a[i].name < a[j].name
+	})
+}
+
+func sortByMathScore(a Applicant) {
+	sort.Slice(a, func(i, j int) bool {
+		if a[i].score[2] != a[j].score[2] {
+			return a[i].score[2] > a[j].score[2]
+		}
+		return a[i].name < a[j].name
+	})
+}
+
+func sortByPhyScore(a Applicant) {
+	sort.Slice(a, func(i, j int) bool {
+		if a[i].score[0] != a[j].score[0] {
+			return a[i].score[0] > a[j].score[0]
+		}
+		return a[i].name < a[j].name
+	})
 }
 
 func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
 
-	var s student
+	var a Applicant
 
 	count := map[string]int{}
 	final := map[string][]string{}
 
 	var used []string
 
-	file, err := os.Open("C:\\Users\\mrgut\\Documents\\UAP\\University Admission Procedure\\stage5\\applicant_list_5.txt")
+	file, err := os.Open("/Users/guty/PycharmProjects/UAP/University Admission Procedure/stage5/applicant_list_5.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,304 +160,32 @@ func main() {
 		name := strings.Split(line, " ")[0]
 		lastName := strings.Split(line, " ")[1]
 
-		s1, _ := strconv.ParseFloat(strings.Split(line, " ")[2], 64)
-		s2, _ := strconv.ParseFloat(strings.Split(line, " ")[3], 64)
-		s3, _ := strconv.ParseFloat(strings.Split(line, " ")[4], 64)
-		s4, _ := strconv.ParseFloat(strings.Split(line, " ")[5], 64)
+		phyScore, _ := strconv.ParseFloat(strings.Split(line, " ")[2], 64)
+		chemScore, _ := strconv.ParseFloat(strings.Split(line, " ")[3], 64)
+		mathScore, _ := strconv.ParseFloat(strings.Split(line, " ")[4], 64)
+		engScore, _ := strconv.ParseFloat(strings.Split(line, " ")[5], 64)
 
-		scores := []float64{s1, s2, s3, s4}
+		scores := []float64{phyScore, chemScore, mathScore, engScore}
 
 		departments := strings.Split(line, " ")[6:]
 
-		s = append(s, struct {
+		a = append(a, struct {
 			name, lastName string
 			score          []float64
 			departments    []string
 		}{name, lastName, scores, departments})
 	}
 
-	// --------------------------------------------------
-	// First round of selection
-	// Sort the students by score and first name -> for the Biotech department
-	// The biotech department is index 1 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[1] != s[j].score[1] {
-			return s[i].score[1] > s[j].score[1]
-		}
-		return s[i].name < s[j].name
-	})
+	/* The addApplicant function will sort the applicants starting with the Biotech dept
+	 And finishing with the Physics department.
+	When we sort the applicants within the Biotech dept we will first sort by the highest score
+	And then by the names alphabetically. (from A to Z) */
+	addApplicant(a, used, count, final, nApplicants)
 
-	// Add the students to the final map in the Biotech department
-	// Iterate over all the students
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[0] == "Biotech" && count["Biotech"] < nApplicants {
-			final["Biotech"] = append(final["Biotech"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[1], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Biotech"]++
-		}
-	}
+	// The sortApplicants function sorts the 'final' map by the highest score first and then by the names alphabetically.
+	sortApplicants(final)
 
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[0] == "Chemistry" && count["Chemistry"] < nApplicants {
-			final["Chemistry"] = append(final["Chemistry"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[1], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Chemistry"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Engineering department
-	// The Engineering department is index 3 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[3] != s[j].score[3] {
-			return s[i].score[3] > s[j].score[3]
-		}
-		return s[i].name < s[j].name
-	})
-
-	// Add the students to the final map in the Engineering department
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[0] == "Engineering" && count["Engineering"] < nApplicants {
-			final["Engineering"] = append(final["Engineering"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[3], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Engineering"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Mathematics department
-	// The Mathematics department is index 2 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[2] != s[j].score[2] {
-			return s[i].score[2] > s[j].score[2]
-		}
-		return s[i].name < s[j].name
-	})
-
-	// Add the students to the final map in the Mathematics department
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[0] == "Mathematics" && count["Mathematics"] < nApplicants {
-			final["Mathematics"] = append(final["Mathematics"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[2], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Mathematics"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Physics department
-	// The Physics department is index 0 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[0] != s[j].score[0] {
-			return s[i].score[0] > s[j].score[0]
-		}
-		return s[i].name < s[j].name
-	})
-
-	// Add the students to the final map in the Physics department
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[0] == "Physics" && count["Physics"] < nApplicants {
-			final["Physics"] = append(final["Physics"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[0], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Physics"]++
-		}
-	}
-	// --------------------------------------------------
-
-	// --------------------------------------------------
-	// Second round of appending students to the final map
-	// Sort the students by score and first name -> for the Biotech department
-	// The biotech department is index 1 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[1] != s[j].score[1] {
-			return s[i].score[1] > s[j].score[1]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[1] == "Biotech" && count["Biotech"] < nApplicants {
-			final["Biotech"] = append(final["Biotech"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[1], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Biotech"]++
-		}
-	}
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[1] == "Chemistry" && count["Chemistry"] < nApplicants {
-			final["Chemistry"] = append(final["Chemistry"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[1], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Chemistry"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Engineering department
-	// The Engineering department is index 3 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[3] != s[j].score[3] {
-			return s[i].score[3] > s[j].score[3]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[1] == "Engineering" && count["Engineering"] < nApplicants {
-			final["Engineering"] = append(final["Engineering"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[3], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Engineering"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Mathematics department
-	// The Mathematics department is index 2 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[2] != s[j].score[2] {
-			return s[i].score[2] > s[j].score[2]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[1] == "Mathematics" && count["Mathematics"] < nApplicants {
-			final["Mathematics"] = append(final["Mathematics"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[2], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Mathematics"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Physics department
-	// The Physics department is index 0 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[0] != s[j].score[0] {
-			return s[i].score[0] > s[j].score[0]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[1] == "Physics" && count["Physics"] < nApplicants {
-			final["Physics"] = append(final["Physics"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[0], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Physics"]++
-		}
-	}
-	// --------------------------------------------------
-
-	// --------------------------------------------------
-	// Third round of appending students to the final map
-	// Sort the students by score and first name -> for the Biotech department
-	// The biotech department is index 1 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[1] != s[j].score[1] {
-			return s[i].score[1] > s[j].score[1]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[2] == "Biotech" && count["Biotech"] < nApplicants {
-			final["Biotech"] = append(final["Biotech"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[1], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Biotech"]++
-		}
-	}
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[2] == "Chemistry" && count["Chemistry"] < nApplicants {
-			final["Chemistry"] = append(final["Chemistry"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[1], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Chemistry"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Engineering department
-	// The Engineering department is index 3 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[3] != s[j].score[3] {
-			return s[i].score[3] > s[j].score[3]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[2] == "Engineering" && count["Engineering"] < nApplicants {
-			final["Engineering"] = append(final["Engineering"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[3], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Engineering"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Mathematics department
-	// The Mathematics department is index 2 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[2] != s[j].score[2] {
-			return s[i].score[2] > s[j].score[2]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[2] == "Mathematics" && count["Mathematics"] < nApplicants {
-			final["Mathematics"] = append(final["Mathematics"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[2], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Mathematics"]++
-		}
-	}
-
-	// Sort the students by score and first name -> for the Physics department
-	// The Physics department is index 0 within the score slice
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score[0] != s[j].score[0] {
-			return s[i].score[0] > s[j].score[0]
-		}
-		return s[i].name < s[j].name
-	})
-
-	for i := 0; i < len(s); i++ {
-		if !isInSlice(used, s[i].name) && s[i].departments[2] == "Physics" && count["Physics"] < nApplicants {
-			final["Physics"] = append(final["Physics"], s[i].name+" "+s[i].lastName+" "+strconv.FormatFloat(s[i].score[0], 'f', 2, 64))
-			used = append(used, s[i].name)
-			count["Physics"]++
-		}
-	}
-	// --------------------------------------------------
-
-	// ****************************************************
-	// Sort each of the departments based on score and name
-	sort.Slice(final["Biotech"], func(i, j int) bool {
-		// sort Biotech based on score
-		if strings.Split(final["Biotech"][i], " ")[2] != strings.Split(final["Biotech"][j], " ")[2] {
-			return strings.Split(final["Biotech"][i], " ")[2] > strings.Split(final["Biotech"][j], " ")[2]
-		}
-		return strings.Split(final["Biotech"][i], " ")[0] < strings.Split(final["Biotech"][j], " ")[0]
-	})
-
-	sort.Slice(final["Chemistry"], func(i, j int) bool {
-		if strings.Split(final["Chemistry"][i], " ")[2] != strings.Split(final["Chemistry"][j], " ")[2] {
-			return strings.Split(final["Chemistry"][i], " ")[2] > strings.Split(final["Chemistry"][j], " ")[2]
-		}
-		return strings.Split(final["Chemistry"][i], " ")[0] < strings.Split(final["Chemistry"][j], " ")[0]
-	})
-
-	sort.Slice(final["Engineering"], func(i, j int) bool {
-		if strings.Split(final["Engineering"][i], " ")[2] != strings.Split(final["Engineering"][j], " ")[2] {
-			return strings.Split(final["Engineering"][i], " ")[2] > strings.Split(final["Engineering"][j], " ")[2]
-		}
-		return strings.Split(final["Engineering"][i], " ")[0] < strings.Split(final["Engineering"][j], " ")[0]
-	})
-
-	sort.Slice(final["Mathematics"], func(i, j int) bool {
-		if strings.Split(final["Mathematics"][i], " ")[2] != strings.Split(final["Mathematics"][j], " ")[2] {
-			return strings.Split(final["Mathematics"][i], " ")[2] > strings.Split(final["Mathematics"][j], " ")[2]
-		}
-		return strings.Split(final["Mathematics"][i], " ")[0] < strings.Split(final["Mathematics"][j], " ")[0]
-	})
-
-	sort.Slice(final["Physics"], func(i, j int) bool {
-		if strings.Split(final["Physics"][i], " ")[2] != strings.Split(final["Physics"][j], " ")[2] {
-			return strings.Split(final["Physics"][i], " ")[2] > strings.Split(final["Physics"][j], " ")[2]
-		}
-		return strings.Split(final["Physics"][i], " ")[0] < strings.Split(final["Physics"][j], " ")[0]
-	})
-	// ****************************************************
-
-	// Print the output - Biotech first then Chem, Eng, Math, Physics
+	// Finally, we print the output - The Biotech department applicants first then Chem, Eng, Math, Physics
 	fmt.Println("Biotech")
 	for _, v := range final["Biotech"] {
 		fmt.Println(v)

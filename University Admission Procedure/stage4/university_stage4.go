@@ -31,7 +31,7 @@ import (
 	"strings"
 )
 
-type student []struct {
+type Applicant []struct {
 	name, lastName string
 	score          float64
 	departments    []string
@@ -46,17 +46,31 @@ func isInSlice(s []string, e string) bool {
 	return false
 }
 
+// The sortApplicants func iterates over the keys of the 'final' map and sorts
+// the students by their highest score and then by their name alphabetically
+func sortApplicants(final map[string][]string) {
+	for _, v := range final {
+		sort.Slice(v, func(i, j int) bool {
+			if strings.Split(v[i], " ")[2] != strings.Split(v[j], " ")[2] {
+				return strings.Split(v[i], " ")[2] > strings.Split(v[j], " ")[2]
+			}
+			return strings.Split(v[i], " ")[0] < strings.Split(v[j], " ")[0]
+		})
+	}
+}
+
 func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
 
-	var s student
+	var a Applicant
 
 	count := map[string]int{}
 	final := map[string][]string{}
 	var used []string
 
-	file, err := os.Open("C:\\Users\\mrgut\\Documents\\UAP\\University Admission Procedure\\stage4\\applicant_list.txt")
+	// Open the applicant_list.txt file to read the applicants, their scores and department choices
+	file, err := os.Open("applicant_list.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,23 +85,24 @@ func main() {
 		score, _ := strconv.ParseFloat(strings.Split(line, " ")[2], 64)
 		departments := strings.Split(line, " ")[3:]
 
-		s = append(s, struct {
+		a = append(a, struct {
 			name, lastName string
 			score          float64
 			departments    []string
 		}{name, lastName, score, departments})
 	}
 
-	// Sort the students by score and first name
-	sort.Slice(s, func(i, j int) bool {
-		if s[i].score != s[j].score {
-			return s[i].score > s[j].score
+	// Sort the applicants by score and first name, to add them in the correct order to the final map
+	sort.Slice(a, func(i, j int) bool {
+		if a[i].score != a[j].score {
+			return a[i].score > a[j].score
 		}
-		return s[i].name < s[j].name
+		return a[i].name < a[j].name
 	})
 
+	// Iterate over the applicants and add them to the final map
 	for i := 0; i < 3; i++ {
-		for _, entry := range s {
+		for _, entry := range a {
 			name := entry.name + " " + entry.lastName + " " + strconv.FormatFloat(entry.score, 'f', 2, 64)
 			if count[entry.departments[i]] == nApplicants || isInSlice(used, name) {
 				continue
@@ -99,44 +114,10 @@ func main() {
 		}
 	}
 
-	// Sort each of the departments based on score and name
-	sort.Slice(final["Biotech"], func(i, j int) bool {
-		// sort Biotech based on score
-		if strings.Split(final["Biotech"][i], " ")[2] != strings.Split(final["Biotech"][j], " ")[2] {
-			return strings.Split(final["Biotech"][i], " ")[2] > strings.Split(final["Biotech"][j], " ")[2]
-		}
-		return strings.Split(final["Biotech"][i], " ")[0] < strings.Split(final["Biotech"][j], " ")[0]
-	})
+	// Call the sortApplicants function to sort the final map by the highest score and then by the name alphabetically
+	sortApplicants(final)
 
-	sort.Slice(final["Chemistry"], func(i, j int) bool {
-		if strings.Split(final["Chemistry"][i], " ")[2] != strings.Split(final["Chemistry"][j], " ")[2] {
-			return strings.Split(final["Chemistry"][i], " ")[2] > strings.Split(final["Chemistry"][j], " ")[2]
-		}
-		return strings.Split(final["Chemistry"][i], " ")[0] < strings.Split(final["Chemistry"][j], " ")[0]
-	})
-
-	sort.Slice(final["Engineering"], func(i, j int) bool {
-		if strings.Split(final["Engineering"][i], " ")[2] != strings.Split(final["Engineering"][j], " ")[2] {
-			return strings.Split(final["Engineering"][i], " ")[2] > strings.Split(final["Engineering"][j], " ")[2]
-		}
-		return strings.Split(final["Engineering"][i], " ")[0] < strings.Split(final["Engineering"][j], " ")[0]
-	})
-
-	sort.Slice(final["Mathematics"], func(i, j int) bool {
-		if strings.Split(final["Mathematics"][i], " ")[2] != strings.Split(final["Mathematics"][j], " ")[2] {
-			return strings.Split(final["Mathematics"][i], " ")[2] > strings.Split(final["Mathematics"][j], " ")[2]
-		}
-		return strings.Split(final["Mathematics"][i], " ")[0] < strings.Split(final["Mathematics"][j], " ")[0]
-	})
-
-	sort.Slice(final["Physics"], func(i, j int) bool {
-		if strings.Split(final["Physics"][i], " ")[2] != strings.Split(final["Physics"][j], " ")[2] {
-			return strings.Split(final["Physics"][i], " ")[2] > strings.Split(final["Physics"][j], " ")[2]
-		}
-		return strings.Split(final["Physics"][i], " ")[0] < strings.Split(final["Physics"][j], " ")[0]
-	})
-
-	// Print the output - Biotech first then Chem, Eng, Math, Physics
+	// Print the output of each department - Biotech first then Chem, Eng, Math, Physics
 	fmt.Println("Biotech")
 	for _, v := range final["Biotech"] {
 		fmt.Println(v)

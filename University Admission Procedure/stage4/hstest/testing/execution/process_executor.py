@@ -77,7 +77,7 @@ class ProcessExecutor(ProgramExecutor):
 
             while self.continue_executing:
                 OutputHandler.print('Handle process - one iteration')
-                sleep(0.1)
+                sleep(0.5)
 
                 if self.process.is_finished():
                     OutputHandler.print('Handle process - finished, breaking')

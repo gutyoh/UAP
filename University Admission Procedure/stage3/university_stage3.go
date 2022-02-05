@@ -10,13 +10,18 @@ https://hyperskill.org/projects/163/stages/844/implement
 [Structs](https://hyperskill.org/learn/topic/1768)
 [Parsing data from strings](https://hyperskill.org/learn/topic/1955)
 
-##### PENDING TOPICS #####
+##### PENDING TO WRITE TOPICS #####
 -------------------------------------------------------------------------------
 [Sorting](**PENDING**)
-[Manipulating Strings⁉️ 👈😆👉💯](**PENDING**) || topic about `strings` package⁉️
-[Advanced Input Operations️️⁉️](**PENDING**) || topic about `bufio` and `scanner`❓
 -------------------------------------------------------------------------------
 ###########################
+
+##### POSSIBLE NEW TOPICS❓ #####
+===============================================================================
+[Manipulating Strings⁉️ 👈😆👉💯](**PENDING**) || topic about `strings` package⁉️
+[Advanced Input Operations️️⁉️](**PENDING**) || topic about `bufio` and `scanner`❓
+===============================================================================
+
 */
 
 import (
@@ -46,11 +51,7 @@ func main() {
 	var name string
 	var score float64
 
-	// var applicantList []interface{}
-
 	var applicantList []Applicant
-
-	// APPLICANTLIST MUST BE CHANGED TO A STRUCT INSTEAD OF INTERFACE
 
 	for i := 0; i < nApplicants; i++ {
 		// create a new scanner
@@ -64,21 +65,16 @@ func main() {
 		name = s[0] + " " + s[1]
 		score, _ = strconv.ParseFloat(s[2], 64)
 
-		// append the name and score to the applicantList as a slice of interface{}
-		// applicantList = append(applicantList, []interface{}{name, score})
-
 		applicantList = append(applicantList, Applicant{name, score})
 	}
 
 	// sort the applicantList by highest score
 	sort.Slice(applicantList, func(i, j int) bool {
-		// return applicantList[i].([]interface{})[1].(float64) > applicantList[j].([]interface{})[1].(float64)
 		return applicantList[i].score > applicantList[j].score
 	})
 
 	fmt.Println("Successful applicants:")
 	for i := 0; i < mApplicants; i++ {
-		// fmt.Println(applicantList[i].([]interface{})[0].(string))
 		fmt.Println(applicantList[i].name)
 	}
 }
