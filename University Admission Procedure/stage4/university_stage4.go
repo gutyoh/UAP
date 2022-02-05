@@ -1,24 +1,9 @@
 package main
 
 /*
-University Admission Procedure - Stage 4/7: Choose your path
-https://hyperskill.org/projects/163/stages/844/implement
+University Admission Procedure - Stage 4/7: [Choose your path](https://hyperskill.org/projects/163/stages/847/implement)
 -------------------------------------------------------------------------------
-[Functions](https://hyperskill.org/learn/topic/1750)
-[Maps](https://hyperskill.org/learn/topic/1824)
-[Working with files in Go](https://hyperskill.org/learn/topic/1768)
-[Reading files in Go](https://hyperskill.org/learn/topic/1787)
-
-##### PENDING TOPICS #####
--------------------------------------------------------------------------------
-[Sorting](**PENDING**)
--------------------------------------------------------------------------------
-
-##### POSSIBLE NEW TOPICS FOR THE GRAPH ⁉️ #####
-===============================================================================
-[Manipulating Strings⁉️ 👈😆👉💯](**PENDING**) || topic about `strings` package⁉️
-[Advanced Input Operations️️⁉️](**PENDING**) || topic about `bufio` and `scanner`❓
-===============================================================================
+##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
 */
 
 import (
@@ -51,10 +36,21 @@ func isInSlice(s []string, e string) bool {
 func sortApplicants(final map[string][]string) {
 	for _, v := range final {
 		sort.Slice(v, func(i, j int) bool {
-			if strings.Split(v[i], " ")[2] != strings.Split(v[j], " ")[2] {
-				return strings.Split(v[i], " ")[2] > strings.Split(v[j], " ")[2]
+			scoreI := strings.Split(v[i], " ")[2]
+			scoreJ := strings.Split(v[j], " ")[2]
+
+			nameI := strings.Split(v[i], " ")[0]
+			nameJ := strings.Split(v[j], " ")[0]
+
+			//if strings.Split(v[i], " ")[2] != strings.Split(v[j], " ")[2] {
+			//	return strings.Split(v[i], " ")[2] > strings.Split(v[j], " ")[2]
+			//}
+			//return strings.Split(v[i], " ")[0] < strings.Split(v[j], " ")[0]
+
+			if scoreI != scoreJ {
+				return scoreI > scoreJ
 			}
-			return strings.Split(v[i], " ")[0] < strings.Split(v[j], " ")[0]
+			return nameI < nameJ
 		})
 	}
 }
@@ -67,10 +63,19 @@ func main() {
 
 	count := map[string]int{}
 	final := map[string][]string{}
+
 	var used []string
 
-	// Open the applicant_list.txt file to read the applicants, their scores and department choices
-	file, err := os.Open("applicant_list.txt")
+	orderedDepartments := []string{
+		"Biotech",
+		"Chemistry",
+		"Engineering",
+		"Mathematics",
+		"Physics",
+	}
+
+	// Open the applicant_list_4.txt file to read the applicants, their scores and department choices
+	file, err := os.Open("C:\\Users\\mrgut\\Documents\\UAP\\University Admission Procedure\\stage4\\applicant_list_4.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -103,47 +108,40 @@ func main() {
 	// Iterate over the applicants and add them to the final map
 	for i := 0; i < 3; i++ {
 		for _, entry := range a {
+			// Create a string 'name' that contains the name, last name and score of the applicant
 			name := entry.name + " " + entry.lastName + " " + strconv.FormatFloat(entry.score, 'f', 2, 64)
-			if count[entry.departments[i]] == nApplicants || isInSlice(used, name) {
-				continue
-			} else {
+
+			// In case the applicant is within the 'used' slice, skip it otherwise append him/her to the 'final' map:
+			if !isInSlice(used, name) && count[entry.departments[i]] < nApplicants {
 				final[entry.departments[i]] = append(final[entry.departments[i]], name)
-				count[entry.departments[i]] += 1
 				used = append(used, name)
+				count[entry.departments[i]]++
 			}
+
+			//if count[entry.departments[i]] == nApplicants || isInSlice(used, name) {
+			//	continue
+			//} else {
+			//	final[entry.departments[i]] = append(final[entry.departments[i]], name)
+			//	count[entry.departments[i]] += 1
+			//	used = append(used, name)
+			//}
 		}
 	}
 
 	// Call the sortApplicants function to sort the final map by the highest score and then by the name alphabetically
 	sortApplicants(final)
 
-	// Print the output of each department - Biotech first then Chem, Eng, Math, Physics
-	fmt.Println("Biotech")
-	for _, v := range final["Biotech"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Chemistry")
-	for _, v := range final["Chemistry"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Engineering")
-	for _, v := range final["Engineering"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Mathematics")
-	for _, v := range final["Mathematics"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Physics")
-	for _, v := range final["Physics"] {
-		fmt.Println(v)
+	// Finally, we print the applicants name and score in the alphabetical order of departments:
+	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
+	for i := 0; i < len(orderedDepartments); i++ {
+		fmt.Println(orderedDepartments[i])
+		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
+		file, err = os.Create(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, v := range final[orderedDepartments[i]] {
+			fmt.Println(v)
+		}
 	}
 }

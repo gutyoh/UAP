@@ -1,5 +1,11 @@
 package main
 
+/*
+University Admission Procedure - Stage 7/7: [Something special](https://hyperskill.org/projects/163/stages/850/implement)
+-------------------------------------------------------------------------------
+##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
+*/
+
 import (
 	"bufio"
 	"fmt"
@@ -45,7 +51,6 @@ if the first department of a[i].departments is the same as orderedDepartments[j]
 and if the count[orderedDepartments[j]] is less than nApplicants. */
 func addApplicant(a Applicant, used []string, count map[string]int, final map[string][]string, nApplicants int) {
 	for i := 0; i < 3; i++ {
-
 		// Sort 'a' (applicants) by [(Chemistry + Physics)/2] exam score then add to "Biotech" department
 		sortByBiotechScore(a)
 		for j := 0; j < len(a); j++ {
@@ -133,6 +138,7 @@ Then we get the max score between the avg. score and the special score
 And finally we sort the applicants by the highest max score and then by the name alphabetically */
 
 // ##### SORTING FUNCTIONS #####
+// -------------------------------------------------------------------------------
 func sortByBiotechScore(a Applicant) {
 	sort.Slice(a, func(i, j int) bool {
 		maxScoreI := math.Max((a[i].score[0]+a[i].score[1])/2, a[i].score[4])
@@ -193,6 +199,7 @@ func sortByPhyScore(a Applicant) {
 	})
 }
 
+// -------------------------------------------------------------------------------
 // ##### END OF SORTING FUNCTIONS #####
 
 func main() {
@@ -206,7 +213,15 @@ func main() {
 
 	var used []string
 
-	file, err := os.Open("/Users/guty/PycharmProjects/UAP/University Admission Procedure/stage7/applicant_list_7.txt")
+	orderedDepartments := []string{
+		"Biotech",
+		"Chemistry",
+		"Engineering",
+		"Mathematics",
+		"Physics",
+	}
+
+	file, err := os.Open("./applicant_list_7.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -223,6 +238,8 @@ func main() {
 		chemScore, _ := strconv.ParseFloat(strings.Split(line, " ")[3], 64)
 		mathScore, _ := strconv.ParseFloat(strings.Split(line, " ")[4], 64)
 		engScore, _ := strconv.ParseFloat(strings.Split(line, " ")[5], 64)
+
+		// Here we create a new variable 'specialScore' to add the new **special score**!
 		specialScore, _ := strconv.ParseFloat(strings.Split(line, " ")[6], 64)
 
 		scores := []float64{phyScore, chemScore, mathScore, engScore, specialScore}
@@ -247,57 +264,16 @@ func main() {
 
 	// Finally, we print and write the output to each file in order of departments:
 	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
-	fmt.Println("Biotech")
-	file, err = os.Create("biotech.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Biotech"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Chemistry")
-	file, err = os.Create("chemistry.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Chemistry"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Engineering")
-	file, err = os.Create("engineering.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Engineering"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Mathematics")
-	file, err = os.Create("mathematics.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Mathematics"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Physics")
-	file, err = os.Create("physics.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Physics"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
+	for i := 0; i < len(orderedDepartments); i++ {
+		fmt.Println(orderedDepartments[i])
+		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
+		file, err = os.Create(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, v := range final[orderedDepartments[i]] {
+			fmt.Println(v)
+			fmt.Fprintln(file, v)
+		}
 	}
 }

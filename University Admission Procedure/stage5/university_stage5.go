@@ -1,5 +1,11 @@
 package main
 
+/*
+University Admission Procedure - Stage 5/7: [Special knowledge](https://hyperskill.org/projects/163/stages/848/implement)
+-------------------------------------------------------------------------------
+##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
+*/
+
 import (
 	"bufio"
 	"fmt"
@@ -100,6 +106,8 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 	}
 }
 
+// ##### SORTING FUNCTIONS #####
+// -------------------------------------------------------------------------------
 func sortByChemScore(a Applicant) {
 	sort.Slice(a, func(i, j int) bool {
 		if a[i].score[1] != a[j].score[1] {
@@ -136,6 +144,9 @@ func sortByPhyScore(a Applicant) {
 	})
 }
 
+// -------------------------------------------------------------------------------
+// ##### END OF SORTING FUNCTIONS #####
+
 func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
@@ -147,7 +158,15 @@ func main() {
 
 	var used []string
 
-	file, err := os.Open("/Users/guty/PycharmProjects/UAP/University Admission Procedure/stage5/applicant_list_5.txt")
+	orderedDepartments := []string{
+		"Biotech",
+		"Chemistry",
+		"Engineering",
+		"Mathematics",
+		"Physics",
+	}
+
+	file, err := os.Open("./applicant_list_5.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -185,33 +204,17 @@ func main() {
 	// The sortApplicants function sorts the 'final' map by the highest score first and then by the names alphabetically.
 	sortApplicants(final)
 
-	// Finally, we print the output - The Biotech department applicants first then Chem, Eng, Math, Physics
-	fmt.Println("Biotech")
-	for _, v := range final["Biotech"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Chemistry")
-	for _, v := range final["Chemistry"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Engineering")
-	for _, v := range final["Engineering"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Mathematics")
-	for _, v := range final["Mathematics"] {
-		fmt.Println(v)
-	}
-	fmt.Println()
-
-	fmt.Println("Physics")
-	for _, v := range final["Physics"] {
-		fmt.Println(v)
+	// Finally, we print the applicants name and score in the alphabetical order of departments:
+	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
+	for i := 0; i < len(orderedDepartments); i++ {
+		fmt.Println(orderedDepartments[i])
+		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
+		file, err = os.Create(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, v := range final[orderedDepartments[i]] {
+			fmt.Println(v)
+		}
 	}
 }

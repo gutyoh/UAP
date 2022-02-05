@@ -9,11 +9,11 @@ files:
 <<<<<<< Updated upstream
 - name: university_stage4.go
   visible: true
-- name: applicant_list.txt
+- name: applicant_list_4.txt
   visible: true
 - name: output.txt
 =======
-- name: applicant_list.txt
+- name: applicant_list_4.txt
   visible: true
 - name: university.py
 >>>>>>> Stashed changes

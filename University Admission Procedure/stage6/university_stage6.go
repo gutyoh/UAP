@@ -1,5 +1,11 @@
 package main
 
+/*
+University Admission Procedure - Stage 6/7: [Extensive training](https://hyperskill.org/projects/163/stages/849/implement)
+-------------------------------------------------------------------------------
+##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
+*/
+
 import (
 	"bufio"
 	"fmt"
@@ -106,6 +112,13 @@ func addApplicant(a Applicant, used []string, count map[string]int, final map[st
 		}
 	}
 }
+
+// ##### SORTING FUNCTIONS #####
+// -------------------------------------------------------------------------------
+/* We update and rename the Sorting functions in Stage #6 - because now we require
+to calculate the average score of 2 exams for the Biotech, Engineering and Physics departments.
+The Chemistry and Mathematics departments are not required to calculate the average score!
+*/
 func sortByBiotechScore(a Applicant) {
 	sort.Slice(a, func(i, j int) bool {
 		if (a[i].score[0]+a[i].score[1])/2 != (a[j].score[0]+a[j].score[1])/2 {
@@ -151,6 +164,9 @@ func sortByPhyScore(a Applicant) {
 	})
 }
 
+// -------------------------------------------------------------------------------
+// ##### END OF SORTING FUNCTIONS #####
+
 func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
@@ -162,7 +178,15 @@ func main() {
 
 	var used []string
 
-	file, err := os.Open("applicant_list_6.txt")
+	orderedDepartments := []string{
+		"Biotech",
+		"Chemistry",
+		"Engineering",
+		"Mathematics",
+		"Physics",
+	}
+
+	file, err := os.Open("./applicant_list_6.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -202,57 +226,16 @@ func main() {
 
 	// Finally, we print and write the output to each file in order of departments:
 	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
-	fmt.Println("Biotech")
-	file, err = os.Create("biotech.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Biotech"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Chemistry")
-	file, err = os.Create("chemistry.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Chemistry"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Engineering")
-	file, err = os.Create("engineering.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Engineering"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Mathematics")
-	file, err = os.Create("mathematics.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Mathematics"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
-	}
-	fmt.Println()
-
-	fmt.Println("Physics")
-	file, err = os.Create("physics.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range final["Physics"] {
-		fmt.Println(v)
-		fmt.Fprintln(file, v)
+	for i := 0; i < len(orderedDepartments); i++ {
+		fmt.Println(orderedDepartments[i])
+		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
+		file, err = os.Create(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, v := range final[orderedDepartments[i]] {
+			fmt.Println(v)
+			fmt.Fprintln(file, v)
+		}
 	}
 }

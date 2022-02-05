@@ -1,8 +1,7 @@
 package main
 
 /*
-University Admission Procedure - Stage 3/7: Going big
-https://hyperskill.org/projects/163/stages/844/implement
+University Admission Procedure - Stage 3/7: [Going big](https://hyperskill.org/projects/163/stages/846/implement)
 -------------------------------------------------------------------------------
 [Control statements](https://hyperskill.org/learn/topic/1728)
 [Slices](https://hyperskill.org/learn/topic/1672)
@@ -18,10 +17,9 @@ https://hyperskill.org/projects/163/stages/844/implement
 
 ##### POSSIBLE NEW TOPICS❓ #####
 ===============================================================================
-[Manipulating Strings⁉️ 👈😆👉💯](**PENDING**) || topic about `strings` package⁉️
+[Manipulating Strings⁉️](**PENDING**) || topic about `strings` package⁉️
 [Advanced Input Operations️️⁉️](**PENDING**) || topic about `bufio` and `scanner`❓
 ===============================================================================
-
 */
 
 import (

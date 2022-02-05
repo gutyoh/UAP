@@ -1,8 +1,7 @@
 package main
 
 /*
-University Admission Procedure - Stage 2/7: Raising the bar
-https://hyperskill.org/projects/163/stages/844/implement
+University Admission Procedure - Stage 2/7: [Raising the bar](https://hyperskill.org/projects/163/stages/845/implement)
 -------------------------------------------------------------------------------
 [Control statements](https://hyperskill.org/learn/topic/1728)
 */
