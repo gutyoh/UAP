@@ -1,14 +1,12 @@
 type: edu
 files:
-- name: test/__init__.py
-  visible: false
 - name: tests.py
   visible: false
 - name: test/application_list.py
   visible: false
 - name: applicant_list_6.txt
   visible: true
-- name: university_stage6a.go
+- name: university_stage6.go
   visible: true
 - name: physics.txt
   visible: true
@@ -20,3 +18,5 @@ files:
   visible: true
 - name: biotech.txt
   visible: true
+- name: test/__init__.py
+  visible: false

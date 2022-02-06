@@ -140,5 +140,5 @@ files:
   visible: true
 - name: hstest/check_result.py
   visible: true
-- name: university_stage5a.go
+- name: university_stage5.go
   visible: true
