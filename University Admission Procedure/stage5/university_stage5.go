@@ -65,6 +65,8 @@ func sortApplicants(final map[string][]string) {
 	}
 }
 
+// The readApplicantPreferences func reads the applicant's preferences from the
+// input file and returns a slice of ApplicantPreferences with the data of the applicants
 func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 	var a []ApplicantPreferences
 	scanner := bufio.NewScanner(file)
@@ -85,109 +87,119 @@ func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 	return a
 }
 
-// The addApplicant checks if the a[i].name is in the 'used' slice and
-// if the first department of a[i].departments is the same as orderedDepartments[j]
-// and if the count[orderedDepartments[j]] is less than nApplicants.
-func addApplicant(a []ApplicantPreferences, used []string, count map[string]int, final map[string][]string, nApplicants int) {
+// The chooseFaculty function checks if the a[k].fullName is in the 'used' slice and
+// if the first department of a[k].departments is the same as orderedDepartments[j] or 'dep'
+// and if the count[orderedDepartments[j]] ('dep') is less than nApplicants.
+func chooseFaculty(a []ApplicantPreferences, orderedDepartments []string,
+	used []string, count map[string]int, final map[string][]string, nApplicants int) {
 	for i := 0; i < 3; i++ {
-		// Sort 'a' (applicants) by Chemistry exam score then add to "Biotech" department
-		sortByChemScore(a)
-		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].fullName) && a[j].departments[i] == "Biotech" && count["Biotech"] < nApplicants {
-				bioScore := strconv.FormatFloat(a[j].scores[1], 'f', 2, 64)
+		for j := 0; j < len(orderedDepartments); j++ {
+			dep := orderedDepartments[j]
+			// Call the sortByDept function to sort students by highest score then by name alphabetically
+			sortByDept(a, dep)
+			switch dep {
+			case "Biotech":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						bioScore := strconv.FormatFloat(a[k].scores[1], 'f', 2, 64)
 
-				final["Biotech"] = append(final["Biotech"], a[j].fullName+" "+bioScore)
-				used = append(used, a[j].fullName)
-				count["Biotech"]++
-			}
-		}
-		// Since we already sorted the applicants by Chemistry score, we can add to "Chemistry" department
-		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].fullName) && a[j].departments[i] == "Chemistry" && count["Chemistry"] < nApplicants {
-				chemScore := strconv.FormatFloat(a[j].scores[1], 'f', 2, 64)
+						final[dep] = append(final[dep], a[k].fullName+" "+bioScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Chemistry":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						chemScore := strconv.FormatFloat(a[k].scores[1], 'f', 2, 64)
 
-				final["Chemistry"] = append(final["Chemistry"], a[j].fullName+" "+chemScore)
-				used = append(used, a[j].fullName)
-				count["Chemistry"]++
-			}
-		}
-		// Sort the applicants by CS (Engineering) exam score then add to "Engineering" department
-		sortByEngScore(a)
-		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].fullName) && a[j].departments[i] == "Engineering" && count["Engineering"] < nApplicants {
-				engScore := strconv.FormatFloat(a[j].scores[3], 'f', 2, 64)
+						final[dep] = append(final[dep], a[k].fullName+" "+chemScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Engineering":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						engScore := strconv.FormatFloat(a[k].scores[3], 'f', 2, 64)
 
-				final["Engineering"] = append(final["Engineering"], a[j].fullName+" "+engScore)
-				used = append(used, a[j].fullName)
-				count["Engineering"]++
-			}
-		}
-		// Sort the applicants by Mathematics exam score then add to "Mathematics" department
-		sortByMathScore(a)
-		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].fullName) && a[j].departments[i] == "Mathematics" && count["Mathematics"] < nApplicants {
-				mathScore := strconv.FormatFloat(a[j].scores[2], 'f', 2, 64)
+						final[dep] = append(final[dep], a[k].fullName+" "+engScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Mathematics":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						mathScore := strconv.FormatFloat(a[k].scores[2], 'f', 2, 64)
 
-				final["Mathematics"] = append(final["Mathematics"], a[j].fullName+" "+mathScore)
-				used = append(used, a[j].fullName)
-				count["Mathematics"]++
-			}
-		}
-		// Sort the applicants by Physics exam score then add to "Physics" department
-		sortByPhyScore(a)
-		for j := 0; j < len(a); j++ {
-			if !contains(used, a[j].fullName) && a[j].departments[i] == "Physics" && count["Physics"] < nApplicants {
-				phyScore := strconv.FormatFloat(a[j].scores[0], 'f', 2, 64)
+						final[dep] = append(final[dep], a[k].fullName+" "+mathScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Physics":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						phyScore := strconv.FormatFloat(a[k].scores[0], 'f', 2, 64)
 
-				final["Physics"] = append(final["Physics"], a[j].fullName+" "+phyScore)
-				used = append(used, a[j].fullName)
-				count["Physics"]++
+						final[dep] = append(final[dep], a[k].fullName+" "+phyScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
 			}
 		}
 	}
 }
 
-// ##### SORTING FUNCTIONS #####
+// ##### SORTING FUNCTION #####
+/* The sortByDept function allows us to sort each of the applicant by its highest score
+And then by its name alphabetically.
+We start sorting with the Biotech department first then by Chem -> Eng -> Math and finish with Physics */
 // -------------------------------------------------------------------------------
-func sortByChemScore(a []ApplicantPreferences) {
-	sort.Slice(a, func(i, j int) bool {
-		if a[i].scores[1] != a[j].scores[1] {
-			return a[i].scores[1] > a[j].scores[1]
-		}
-		// return strings.Split(a[i].fullName, " ")[0] < strings.Split(a[j].fullName, " ")[0]
-		return a[i].fullName < a[j].fullName
-	})
-}
-
-func sortByEngScore(a []ApplicantPreferences) {
-	sort.Slice(a, func(i, j int) bool {
-		if a[i].scores[3] != a[j].scores[3] {
-			return a[i].scores[3] > a[j].scores[3]
-		}
-		return a[i].fullName < a[j].fullName
-	})
-}
-
-func sortByMathScore(a []ApplicantPreferences) {
-	sort.Slice(a, func(i, j int) bool {
-		if a[i].scores[2] != a[j].scores[2] {
-			return a[i].scores[2] > a[j].scores[2]
-		}
-		return a[i].fullName < a[j].fullName
-	})
-}
-
-func sortByPhyScore(a []ApplicantPreferences) {
-	sort.Slice(a, func(i, j int) bool {
-		if a[i].scores[0] != a[j].scores[0] {
-			return a[i].scores[0] > a[j].scores[0]
-		}
-		return a[i].fullName < a[j].fullName
-	})
+func sortByDept(a []ApplicantPreferences, dep string) {
+	switch dep {
+	case "Biotech":
+		sort.Slice(a, func(i, j int) bool {
+			if a[i].scores[1] != a[j].scores[1] {
+				return a[i].scores[1] > a[j].scores[1]
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Chemistry":
+		sort.Slice(a, func(i, j int) bool {
+			if a[i].scores[1] != a[j].scores[1] {
+				return a[i].scores[1] > a[j].scores[1]
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Engineering":
+		sort.Slice(a, func(i, j int) bool {
+			if a[i].scores[3] != a[j].scores[3] {
+				return a[i].scores[3] > a[j].scores[3]
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Mathematics":
+		sort.Slice(a, func(i, j int) bool {
+			if a[i].scores[2] != a[j].scores[2] {
+				return a[i].scores[2] > a[j].scores[2]
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Physics":
+		sort.Slice(a, func(i, j int) bool {
+			if a[i].scores[0] != a[j].scores[0] {
+				return a[i].scores[0] > a[j].scores[0]
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	}
 }
 
 // -------------------------------------------------------------------------------
-// ##### END OF SORTING FUNCTIONS #####
+// ##### END OF SORTING FUNCTION #####
 
 func main() {
 	var nApplicants int
@@ -204,13 +216,15 @@ func main() {
 	}
 	defer file.Close()
 
+	// We call readApplicantPreferences to read the applicant data into 'a'
 	a := readApplicantPreferences(file)
 
-	/* The addApplicant function will sort the applicants starting with the Biotech dept
+	/* The chooseFaculty function will sort the applicants starting with the Biotech dept
 	 And finishing with the Physics department.
 	When we sort the applicants within the Biotech dept we will first sort by the highest score
 	And then by the names alphabetically. (from A to Z) */
-	addApplicant(a, used, count, final, nApplicants)
+	// chooseFaculty(a, used, count, final, nApplicants)
+	chooseFaculty(a, orderedDepartments, used, count, final, nApplicants)
 
 	// The sortApplicants function sorts the 'final' map by the highest score first and then by the names alphabetically.
 	sortApplicants(final)

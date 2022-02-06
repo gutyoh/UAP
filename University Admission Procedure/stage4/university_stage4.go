@@ -66,6 +66,9 @@ func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 	return a
 }
 
+// The chooseFaculty function checks if the applicant is not in the 'used' slice
+// and if the count[orderedDepartments[j]] ('dep') is less than nApplicants.
+// if so, it adds the applicant to the 'used' slice and adds the applicant to the 'final' map.
 func chooseFaculty(a []ApplicantPreferences, nApplicants int) map[string][]Applicant {
 	count := map[string]int{}
 	final := map[string][]Applicant{}
@@ -102,7 +105,11 @@ func main() {
 	}
 	defer file.Close()
 
+	// We call readApplicantPreferences to read the applicant data into 'a'
 	a := readApplicantPreferences(file)
+
+	// We call chooseFaculty to get sort the students into each of their chosen departments
+	// Then we sort them by highest score first, and then by name alphabetically
 	final := chooseFaculty(a, nApplicants)
 
 	for i := 0; i < len(orderedDepartments); i++ {

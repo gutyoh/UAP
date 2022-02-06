@@ -17,14 +17,26 @@ import (
 	"strings"
 )
 
-type Applicant []struct {
-	name, lastName string
-	score          []float64
-	departments    []string
+var orderedDepartments = []string{
+	"Biotech",
+	"Chemistry",
+	"Engineering",
+	"Mathematics",
+	"Physics",
 }
 
-// The isInSlice function checks if a certain string is within a slice of strings.
-func isInSlice(s []string, e string) bool {
+type Applicant struct {
+	fullName string
+	scores   []float64
+}
+
+type ApplicantPreferences struct {
+	Applicant
+	departments []string
+}
+
+// The contains function checks if a certain string is within a slice of strings.
+func contains(s []string, e string) bool {
 	for _, a := range s {
 		if a == e {
 			return true
@@ -55,87 +67,119 @@ func sortApplicants(final map[string][]string) {
 	}
 }
 
-/* The addApplicant function checks if the a[i].name is in the 'used' slice and
-if the first department of a[i].departments is the same as orderedDepartments[j]
-and if the count[orderedDepartments[j]] is less than nApplicants. */
-func addApplicant(a Applicant, used []string, count map[string]int, final map[string][]string, nApplicants int) {
+// The readApplicantPreferences func reads the applicant's preferences from the
+// input file and returns a slice of ApplicantPreferences with the data of the applicants
+func readApplicantPreferences(file *os.File) []ApplicantPreferences {
+	var a []ApplicantPreferences
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		parts := strings.Split(scanner.Text(), " ")
+
+		phyScore, _ := strconv.ParseFloat(parts[2], 64)
+		chemScore, _ := strconv.ParseFloat(parts[3], 64)
+		mathScore, _ := strconv.ParseFloat(parts[4], 64)
+		engScore, _ := strconv.ParseFloat(parts[5], 64)
+
+		// Here we create a new variable 'specialScore' to add the new **special score**!
+		specialScore, _ := strconv.ParseFloat(parts[6], 64)
+
+		scores := []float64{phyScore, chemScore, mathScore, engScore, specialScore}
+
+		a = append(a, ApplicantPreferences{
+			Applicant{parts[0] + " " + parts[1], scores}, parts[7:],
+		})
+	}
+	return a
+}
+
+// The chooseFaculty function checks if the a[k].fullName is in the 'used' slice and
+// if the first department of a[k].departments is the same as orderedDepartments[j] or 'dep'
+// and if the count[orderedDepartments[j]] ('dep') is less than nApplicants.
+func chooseFaculty(a []ApplicantPreferences, orderedDepartments []string,
+	used []string, count map[string]int, final map[string][]string, nApplicants int) {
 	for i := 0; i < 3; i++ {
-		// Sort 'a' (applicants) by [(Chemistry + Physics)/2] exam score then add to "Biotech" department
-		sortByBiotechScore(a)
-		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Biotech" && count["Biotech"] < nApplicants {
-				meanScore := (a[j].score[0] + a[j].score[1]) / 2
-				specialScore := a[j].score[4]
+		for j := 0; j < len(orderedDepartments); j++ {
+			dep := orderedDepartments[j]
+			// Call the sortByDept function to sort students by highest score then by name alphabetically
+			sortByDept(a, dep)
+			switch dep {
+			case "Biotech":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						avgScore := (a[k].scores[0] + a[k].scores[1]) / 2
+						specialScore := a[k].scores[4]
 
-				bioMaxScore := math.Max(meanScore, specialScore)
+						// Get the highest score between the average score of the
+						// [(Chemistry + Physics)/2] exams and the 'Special' exam
+						bioMaxScore := math.Max(avgScore, specialScore)
 
-				finalMaxScore := strconv.FormatFloat(bioMaxScore, 'f', 2, 64)
+						finalMaxScore := strconv.FormatFloat(bioMaxScore, 'f', 2, 64)
 
-				final["Biotech"] = append(final["Biotech"], a[j].name+" "+a[j].lastName+" "+finalMaxScore)
-				used = append(used, a[j].name)
-				count["Biotech"]++
-			}
-		}
+						final[dep] = append(final[dep], a[k].fullName+" "+finalMaxScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Chemistry":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						// Get the highest score between Chemistry exam and the 'Special' exam
+						chemMaxScore := math.Max(a[k].scores[1], a[k].scores[4])
 
-		// Sort 'a' (applicants) by [(Chemistry + Physics)/2] exam score then add to "Biotech" department
-		sortByChemScore(a)
-		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Chemistry" && count["Chemistry"] < nApplicants {
-				chemMaxScore := math.Max(a[j].score[1], a[j].score[4])
+						finalMaxScore := strconv.FormatFloat(chemMaxScore, 'f', 2, 64)
 
-				finalMaxScore := strconv.FormatFloat(chemMaxScore, 'f', 2, 64)
+						final[dep] = append(final[dep], a[k].fullName+" "+finalMaxScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Engineering":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						avgScore := (a[k].scores[3] + a[k].scores[2]) / 2
+						specialScore := a[k].scores[4]
 
-				final["Chemistry"] = append(final["Chemistry"], a[j].name+" "+a[j].lastName+" "+finalMaxScore)
-				used = append(used, a[j].name)
-				count["Chemistry"]++
-			}
-		}
+						// Get the highest score between the average score of the
+						// [(Engineering + Mathematics)/2] exams and the 'Special' exam
+						engMaxScore := math.Max(avgScore, specialScore)
 
-		// Sort the applicants by [(Engineering + Math)/2] exam score then add to "Engineering" department
-		sortByEngScore(a)
-		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Engineering" && count["Engineering"] < nApplicants {
-				meanScore := (a[j].score[3] + a[j].score[2]) / 2
-				specialScore := a[j].score[4]
+						finalMaxScore := strconv.FormatFloat(engMaxScore, 'f', 2, 64)
 
-				engMaxScore := math.Max(meanScore, specialScore)
+						final[dep] = append(final[dep], a[k].fullName+" "+finalMaxScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Mathematics":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						// Get the highest score between Mathematics exam and the 'Special' exam
+						mathMaxScore := math.Max(a[k].scores[2], a[k].scores[4])
 
-				finalMaxScore := strconv.FormatFloat(engMaxScore, 'f', 2, 64)
+						finalMaxScore := strconv.FormatFloat(mathMaxScore, 'f', 2, 64)
 
-				final["Engineering"] = append(final["Engineering"], a[j].name+" "+a[j].lastName+" "+finalMaxScore)
-				used = append(used, a[j].name)
-				count["Engineering"]++
-			}
-		}
+						final[dep] = append(final[dep], a[k].fullName+" "+finalMaxScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
+			case "Physics":
+				for k := 0; k < len(a); k++ {
+					if !contains(used, a[k].fullName) && a[k].departments[i] == dep && count[dep] < nApplicants {
+						avgScore := (a[k].scores[0] + a[k].scores[2]) / 2
+						specialScore := a[k].scores[4]
 
-		// Sort the applicants by Mathematics exam score then add to "Mathematics" department
-		sortByMathScore(a)
-		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Mathematics" && count["Mathematics"] < nApplicants {
-				mathMaxScore := math.Max(a[j].score[2], a[j].score[4])
+						// Get the highest score between the average score of the
+						// [(Engineering + Mathematics)/2] exams and the 'Special' exam
+						phyMaxScore := math.Max(avgScore, specialScore)
 
-				finalMaxScore := strconv.FormatFloat(mathMaxScore, 'f', 2, 64)
+						finalMaxScore := strconv.FormatFloat(phyMaxScore, 'f', 2, 64)
 
-				final["Mathematics"] = append(final["Mathematics"], a[j].name+" "+a[j].lastName+" "+finalMaxScore)
-				used = append(used, a[j].name)
-				count["Mathematics"]++
-			}
-		}
-
-		// Sort the applicants by [(Physics + Math)/2] exam score then add to "Physics" department
-		sortByPhyScore(a)
-		for j := 0; j < len(a); j++ {
-			if !isInSlice(used, a[j].name) && a[j].departments[i] == "Physics" && count["Physics"] < nApplicants {
-				meanScore := (a[j].score[0] + a[j].score[2]) / 2
-				specialScore := a[j].score[4]
-
-				phyMaxScore := math.Max(meanScore, specialScore)
-
-				finalMaxScore := strconv.FormatFloat(phyMaxScore, 'f', 2, 64)
-
-				final["Physics"] = append(final["Physics"], a[j].name+" "+a[j].lastName+" "+finalMaxScore)
-				used = append(used, a[j].name)
-				count["Physics"]++
+						final[dep] = append(final[dep], a[k].fullName+" "+finalMaxScore)
+						used = append(used, a[k].fullName)
+						count[dep]++
+					}
+				}
 			}
 		}
 	}
@@ -148,87 +192,94 @@ And finally we sort the applicants by the highest max score and then by the name
 
 // ##### SORTING FUNCTIONS #####
 // -------------------------------------------------------------------------------
-func sortByBiotechScore(a Applicant) {
-	sort.Slice(a, func(i, j int) bool {
-		maxScoreI := math.Max((a[i].score[0]+a[i].score[1])/2, a[i].score[4])
-		maxScoreJ := math.Max((a[j].score[0]+a[j].score[1])/2, a[j].score[4])
 
-		if maxScoreI != maxScoreJ {
-			return maxScoreI > maxScoreJ
-		}
-		return a[i].name < a[j].name
-	})
-}
+func sortByDept(a []ApplicantPreferences, dep string) {
+	switch dep {
+	case "Biotech":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max((a[i].scores[0]+a[i].scores[1])/2, a[i].scores[4])
+			maxScoreJ := math.Max((a[j].scores[0]+a[j].scores[1])/2, a[j].scores[4])
 
-func sortByChemScore(a Applicant) {
-	sort.Slice(a, func(i, j int) bool {
-		maxScoreI := math.Max(a[i].score[1], a[i].score[4])
-		maxScoreJ := math.Max(a[j].score[1], a[j].score[4])
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Chemistry":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max(a[i].scores[1], a[i].scores[4])
+			maxScoreJ := math.Max(a[j].scores[1], a[j].scores[4])
 
-		if maxScoreI != maxScoreJ {
-			return maxScoreI > maxScoreJ
-		}
-		return a[i].name < a[j].name
-	})
-}
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Engineering":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max((a[i].scores[3]+a[i].scores[2])/2, a[i].scores[4])
+			maxScoreJ := math.Max((a[j].scores[3]+a[j].scores[2])/2, a[j].scores[4])
 
-func sortByEngScore(a Applicant) {
-	sort.Slice(a, func(i, j int) bool {
-		maxScoreI := math.Max((a[i].score[3]+a[i].score[2])/2, a[i].score[4])
-		maxScoreJ := math.Max((a[j].score[3]+a[j].score[2])/2, a[j].score[4])
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Mathematics":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max(a[i].scores[2], a[i].scores[4])
+			maxScoreJ := math.Max(a[j].scores[2], a[j].scores[4])
 
-		if maxScoreI != maxScoreJ {
-			return maxScoreI > maxScoreJ
-		}
-		return a[i].name < a[j].name
-	})
-}
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Physics":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max((a[i].scores[0]+a[i].scores[2])/2, a[i].scores[4])
+			maxScoreJ := math.Max((a[j].scores[0]+a[j].scores[2])/2, a[j].scores[4])
 
-func sortByMathScore(a Applicant) {
-	sort.Slice(a, func(i, j int) bool {
-		maxScoreI := math.Max(a[i].score[2], a[i].score[4])
-		maxScoreJ := math.Max(a[j].score[2], a[j].score[4])
-
-		if maxScoreI != maxScoreJ {
-			return maxScoreI > maxScoreJ
-		}
-		return a[i].name < a[j].name
-	})
-}
-
-func sortByPhyScore(a Applicant) {
-	sort.Slice(a, func(i, j int) bool {
-		maxScoreI := math.Max((a[i].score[0]+a[i].score[2])/2, a[i].score[4])
-		maxScoreJ := math.Max((a[j].score[0]+a[j].score[2])/2, a[j].score[4])
-
-		if maxScoreI != maxScoreJ {
-			return maxScoreI > maxScoreJ
-		}
-		return a[i].name < a[j].name
-	})
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	}
 }
 
 // -------------------------------------------------------------------------------
-// ##### END OF SORTING FUNCTIONS #####
+// ##### END OF SORTING FUNCTION #####
+
+// The writeData func prints and writes the output to each file in order of departments.
+// It starts with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
+func writeData(file *os.File, orderedDepartments []string, final map[string][]string) {
+	for i := 0; i < len(orderedDepartments); i++ {
+		fmt.Println(orderedDepartments[i])
+		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
+		file, err := os.Create(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, v := range final[orderedDepartments[i]] {
+			fmt.Println(v)
+			_, err = fmt.Fprintln(file, v)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		fmt.Println()
+	}
+}
 
 func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
 
-	var a Applicant
-
 	count := map[string]int{}
 	final := map[string][]string{}
 
 	var used []string
-
-	orderedDepartments := []string{
-		"Biotech",
-		"Chemistry",
-		"Engineering",
-		"Mathematics",
-		"Physics",
-	}
 
 	file, err := os.Open("./applicant_list_7.txt")
 	if err != nil {
@@ -236,54 +287,18 @@ func main() {
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
+	// We call readApplicantPreferences to read the applicant data into 'a'
+	a := readApplicantPreferences(file)
 
-		name := strings.Split(line, " ")[0]
-		lastName := strings.Split(line, " ")[1]
-
-		phyScore, _ := strconv.ParseFloat(strings.Split(line, " ")[2], 64)
-		chemScore, _ := strconv.ParseFloat(strings.Split(line, " ")[3], 64)
-		mathScore, _ := strconv.ParseFloat(strings.Split(line, " ")[4], 64)
-		engScore, _ := strconv.ParseFloat(strings.Split(line, " ")[5], 64)
-
-		// Here we create a new variable 'specialScore' to add the new **special score**!
-		specialScore, _ := strconv.ParseFloat(strings.Split(line, " ")[6], 64)
-
-		scores := []float64{phyScore, chemScore, mathScore, engScore, specialScore}
-
-		departments := strings.Split(line, " ")[7:]
-
-		a = append(a, struct {
-			name, lastName string
-			score          []float64
-			departments    []string
-		}{name, lastName, scores, departments})
-	}
-
-	/* The addApplicant function will sort the applicants starting with the Biotech dept
+	/* The chooseFaculty function will sort the applicants starting with the Biotech dept
 	 And finishing with the Physics department.
 	When we sort the applicants within the Biotech dept we will first sort by the highest score
 	And then by the names alphabetically. (from A to Z) */
-	addApplicant(a, used, count, final, nApplicants)
+	chooseFaculty(a, orderedDepartments, used, count, final, nApplicants)
 
 	// The sortApplicants function sorts the 'final' map by the highest score first and then by the names alphabetically.
 	sortApplicants(final)
 
-	// Finally, we print and write the output to each file in order of departments:
-	// We start with the Biotech department first then Chemistry -> Engineering -> Mathematics and end with Physics.
-	for i := 0; i < len(orderedDepartments); i++ {
-		fmt.Println(orderedDepartments[i])
-		fileName := strings.ToLower(orderedDepartments[i]) + ".txt"
-		file, err = os.Create(fileName)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, v := range final[orderedDepartments[i]] {
-			fmt.Println(v)
-			fmt.Fprintln(file, v)
-		}
-		fmt.Println()
-	}
+	// Finally, we call writeData to print and write the output to each file in order of departments.
+	writeData(file, orderedDepartments, final)
 }
