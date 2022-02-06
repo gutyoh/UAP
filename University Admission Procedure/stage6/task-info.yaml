@@ -8,9 +8,15 @@ files:
   visible: false
 - name: applicant_list_6.txt
   visible: true
-- name: hstest/stage/plotting_test.py
+- name: university_stage6a.go
   visible: true
-- name: hstest/testing/runner/plot_testing_runner.py
+- name: physics.txt
   visible: true
-- name: university_stage6.go
+- name: mathematics.txt
+  visible: true
+- name: chemistry.txt
+  visible: true
+- name: engineering.txt
+  visible: true
+- name: biotech.txt
   visible: true
