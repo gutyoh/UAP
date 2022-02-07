@@ -3,7 +3,10 @@ package main
 /*
 [University Admission Procedure - Stage 4/7: Choose your path](https://hyperskill.org/projects/163/stages/847/implement)
 -------------------------------------------------------------------------------
+[Main (compiling and running](https://hyperskill.org/learn/topic/1718)
 [Function decomposition](https://hyperskill.org/learn/topic/1893)
+[Reading files in Go](https://hyperskill.org/learn/topic/1787)
+[Operations with maps](https://hyperskill.org/learn/topic/1850)
 */
 
 import (
