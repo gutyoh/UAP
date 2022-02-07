@@ -3,7 +3,7 @@ package main
 /*
 [University Admission Procedure - Stage 6/7: Extensive training](https://hyperskill.org/projects/163/stages/849/implement)
 -------------------------------------------------------------------------------
-##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
+[Writing data to files in Go](https://hyperskill.org/learn/topic/1908)
 */
 
 import (
