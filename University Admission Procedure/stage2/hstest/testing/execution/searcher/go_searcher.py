@@ -9,7 +9,7 @@ class GoSearcher(BaseSearcher):
 
     @property
     def extension(self) -> str:
-        return 'university_stage7.go.go'
+        return '.go'
 
     def search(self, where_to_search: str = None) -> RunnableFile:
         main_searcher = re.compile(r'(^|\n) *func +main +\( *\)', re.M)

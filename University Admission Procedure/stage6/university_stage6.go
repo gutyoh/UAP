@@ -1,5 +1,11 @@
 package main
 
+/*
+[University Admission Procedure - Stage 5/7: Special knowledge](https://hyperskill.org/projects/163/stages/848/implement)
+-------------------------------------------------------------------------------
+##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
+*/
+
 import (
 	"bufio"
 	"fmt"
@@ -18,11 +24,6 @@ var orderedDepartments = []string{
 	"Physics",
 }
 
-type Departments struct {
-	depName        string
-	FinalApplicant []FinalApplicant
-}
-
 type FinalApplicant struct {
 	fullName string
 	score    float64
@@ -32,11 +33,6 @@ type ApplicantPreferences struct {
 	fullName    string
 	scores      []float64
 	departments []string
-}
-
-type Exam struct {
-	depName string
-	examNum []int
 }
 
 func readApplicantPreferences(file *os.File) []ApplicantPreferences {
@@ -50,9 +46,6 @@ func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 		mathScore, _ := strconv.ParseFloat(parts[4], 64)
 		engScore, _ := strconv.ParseFloat(parts[5], 64)
 
-		// Here we create a new variable 'specialScore' to add the new **special score**!
-		// specialScore, _ := strconv.ParseFloat(parts[6], 64)
-
 		scores := []float64{phyScore, chemScore, mathScore, engScore}
 
 		a = append(a, ApplicantPreferences{
@@ -60,6 +53,15 @@ func readApplicantPreferences(file *os.File) []ApplicantPreferences {
 		})
 	}
 	return a
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 func sortByDept(a []ApplicantPreferences, dep string) []ApplicantPreferences {
@@ -115,21 +117,11 @@ func sortByDept(a []ApplicantPreferences, dep string) []ApplicantPreferences {
 	return a
 }
 
-func removeApplicant(a []ApplicantPreferences, fullName string) []ApplicantPreferences {
-	for i, v := range a {
-		if v.fullName == fullName {
-			a = append(a[:i], a[i+1:]...)
-			return a
-		}
-	}
-	return a
-}
-
 func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
 
-	file, err := os.Open("/Users/guty/PycharmProjects/UAP/University Admission Procedure/stage6/applicant_list_6.txt")
+	file, err := os.Open("./applicant_list_6.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -153,17 +145,18 @@ func main() {
 		"Physics":     {},
 	}
 
+	var used []string
+
 	for i := 0; i < 3; i++ {
 		for _, dep := range orderedDepartments {
 			applicantsSorted := sortByDept(applicants, dep)
 			for _, applicant := range applicantsSorted {
-				if applicant.departments[i] == dep && len(departments[dep]) < nApplicants {
+				if applicant.departments[i] == dep && len(departments[dep]) < nApplicants && !contains(used, applicant.fullName) {
 					score := (applicant.scores[exam[dep][0]] + applicant.scores[exam[dep][1]]) / 2
 
 					departments[dep] = append(departments[dep], FinalApplicant{applicant.fullName, score})
 
-					// remove 'applicant' from 'applicants' - esto esta borrando a applicants y por eso el sort falla
-					applicants = removeApplicant(applicants, applicant.fullName)
+					used = append(used, applicant.fullName)
 				}
 			}
 		}
@@ -187,7 +180,10 @@ func main() {
 
 		for _, v := range departments[dep] {
 			fmt.Printf("%s %.2f\n", v.fullName, v.score)
-			fmt.Fprintf(file, "%s %.2f\n", v.fullName, v.score)
+			_, err = fmt.Fprintf(file, "%s %.2f\n", v.fullName, v.score)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 		fmt.Println()
 	}

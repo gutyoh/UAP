@@ -52,7 +52,7 @@ class StageTest:
     def _init_runner(self) -> TestRunner:
         for folder, dirs, files in walk_user_files(os.getcwd()):
             for f in files:
-                if f.endswith('university_stage7.go.go'):
+                if f.endswith('.go'):
                     return AsyncDynamicTestingRunner(GoExecutor)
 
                 if f.endswith('.js'):

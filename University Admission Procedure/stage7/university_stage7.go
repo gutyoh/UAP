@@ -1,7 +1,7 @@
 package main
 
 /*
-[University Admission Procedure - Stage 5/7: Special knowledge](https://hyperskill.org/projects/163/stages/848/implement)
+[University Admission Procedure - Stage 7/7: Something special](https://hyperskill.org/projects/163/stages/850/implement)
 -------------------------------------------------------------------------------
 ##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
 */
@@ -25,35 +25,19 @@ var orderedDepartments = []string{
 	"Physics",
 }
 
-type (
-	Applicant struct {
-		fullName string
-	}
-
-	University struct {
-		applicants           []Applicant
-		applicantScores      map[string][]float64
-		applicantPreferences map[string][]string
-
-		finals map[string][]ExamResult
-	}
-
-	ExamResult struct {
-		Applicant
-		score float64
-	}
-)
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
+type FinalApplicant struct {
+	fullName string
+	score    float64
 }
 
-func (u *University) getApplications(file *os.File) {
+type ApplicantPreferences struct {
+	fullName    string
+	scores      []float64
+	departments []string
+}
+
+func readApplicantPreferences(file *os.File) []ApplicantPreferences {
+	var a []ApplicantPreferences
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), " ")
@@ -67,83 +51,141 @@ func (u *University) getApplications(file *os.File) {
 		specialScore, _ := strconv.ParseFloat(parts[6], 64)
 
 		scores := []float64{phyScore, chemScore, mathScore, engScore, specialScore}
-		fullName := parts[0] + " " + parts[1]
 
-		u.applicants = append(u.applicants, Applicant{fullName})
-		u.applicantScores[fullName] = scores
-		u.applicantPreferences[fullName] = parts[7:]
-	}
-}
-
-func (u *University) chooseFaculty(nApplicants int) {
-	accepted := make([]string, 0, len(u.applicants))
-	for i := 0; i < 3; i++ {
-		for _, dep := range orderedDepartments {
-			u.sortByMajorScore(dep)
-			for _, a := range u.applicants {
-				if contains(accepted, a.fullName) ||
-					len(u.finals[dep]) == nApplicants ||
-					u.applicantPreferences[a.fullName][i] != dep {
-					continue
-				}
-				u.finals[dep] = append(
-					u.finals[dep], ExamResult{a, u.majorScoreForDepartment(a, dep)},
-				)
-				accepted = append(accepted, a.fullName)
-			}
-		}
-	}
-}
-
-func (u *University) majorScoreForDepartment(a Applicant, dep string) float64 {
-	switch dep {
-	case "Physics":
-		return math.Max((u.applicantScores[a.fullName][0]+u.applicantScores[a.fullName][2])/2,
-			u.applicantScores[a.fullName][4])
-	case "Biotech":
-		return math.Max((u.applicantScores[a.fullName][0]+u.applicantScores[a.fullName][1])/2,
-			u.applicantScores[a.fullName][4])
-	case "Mathematics":
-		return math.Max(u.applicantScores[a.fullName][2], u.applicantScores[a.fullName][4])
-	case "Engineering":
-		return math.Max((u.applicantScores[a.fullName][3]+u.applicantScores[a.fullName][2])/2,
-			u.applicantScores[a.fullName][4])
-	default: // Chemistry
-		return math.Max(u.applicantScores[a.fullName][1], u.applicantScores[a.fullName][4])
-	}
-}
-
-func (u *University) sortByMajorScore(dep string) {
-	sort.Slice(u.applicants, func(i, j int) bool {
-		first, second := u.applicants[i], u.applicants[j]
-		if u.majorScoreForDepartment(first, dep) != u.majorScoreForDepartment(second, dep) {
-			return u.majorScoreForDepartment(first, dep) > u.majorScoreForDepartment(second, dep)
-		}
-		return first.fullName < second.fullName
-	})
-}
-
-func (u *University) prepareFinalOrder() {
-	for _, dep := range orderedDepartments {
-		sort.Slice(u.finals[dep], func(i, j int) bool {
-			first, second := u.finals[dep][i], u.finals[dep][j]
-			if first.score != second.score {
-				return first.score > second.score
-			}
-			return first.fullName < second.fullName
+		a = append(a, ApplicantPreferences{
+			parts[0] + " " + parts[1], scores, parts[7:],
 		})
 	}
+	return a
 }
 
-func (u *University) showAccepted() {
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func sortByDept(a []ApplicantPreferences, dep string) []ApplicantPreferences {
+	switch dep {
+	case "Biotech":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max((a[i].scores[0]+a[i].scores[1])/2, a[i].scores[4])
+			maxScoreJ := math.Max((a[j].scores[0]+a[j].scores[1])/2, a[j].scores[4])
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Chemistry":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max(a[i].scores[1], a[i].scores[4])
+			maxScoreJ := math.Max(a[j].scores[1], a[j].scores[4])
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Engineering":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max((a[i].scores[3]+a[i].scores[2])/2, a[i].scores[4])
+			maxScoreJ := math.Max((a[j].scores[3]+a[j].scores[2])/2, a[j].scores[4])
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Mathematics":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max(a[i].scores[2], a[i].scores[4])
+			maxScoreJ := math.Max(a[j].scores[2], a[j].scores[4])
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	case "Physics":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := math.Max((a[i].scores[0]+a[i].scores[2])/2, a[i].scores[4])
+			maxScoreJ := math.Max((a[j].scores[0]+a[j].scores[2])/2, a[j].scores[4])
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return a[i].fullName < a[j].fullName
+		})
+	}
+	return a
+}
+
+func main() {
+	var nApplicants int
+	fmt.Scanln(&nApplicants)
+
+	file, err := os.Open("./applicant_list_7.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	applicants := readApplicantPreferences(file)
+
+	exam := map[string][]int{
+		"Biotech":     {0, 1, 4},
+		"Chemistry":   {1, 1, 4},
+		"Engineering": {2, 3, 4},
+		"Mathematics": {2, 2, 4},
+		"Physics":     {0, 2, 4},
+	}
+
+	departments := map[string][]FinalApplicant{
+		"Biotech":     {},
+		"Chemistry":   {},
+		"Engineering": {},
+		"Mathematics": {},
+		"Physics":     {},
+	}
+
+	var used []string
+
+	for i := 0; i < 3; i++ {
+		for _, dep := range orderedDepartments {
+			applicantsSorted := sortByDept(applicants, dep)
+			for _, applicant := range applicantsSorted {
+				if applicant.departments[i] == dep && len(departments[dep]) < nApplicants && !contains(used, applicant.fullName) {
+					score := math.Max((applicant.scores[exam[dep][0]]+applicant.scores[exam[dep][1]])/2, applicant.scores[exam[dep][2]])
+
+					departments[dep] = append(departments[dep], FinalApplicant{applicant.fullName, score})
+
+					used = append(used, applicant.fullName)
+				}
+			}
+		}
+	}
+
+	for _, dep := range orderedDepartments {
+		sort.Slice(departments[dep], func(i, j int) bool {
+			if departments[dep][i].score != departments[dep][j].score {
+				return departments[dep][i].score > departments[dep][j].score
+			}
+			return departments[dep][i].fullName < departments[dep][j].fullName
+		})
+	}
+
 	for _, dep := range orderedDepartments {
 		fmt.Println(dep)
-		fileName := strings.ToLower(dep) + ".txt"
-		file, err := os.Create(fileName)
+		file, err = os.Create(strings.ToLower(dep) + ".txt")
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, v := range u.finals[dep] {
+
+		for _, v := range departments[dep] {
 			fmt.Printf("%s %.2f\n", v.fullName, v.score)
 			_, err = fmt.Fprintf(file, "%s %.2f\n", v.fullName, v.score)
 			if err != nil {
@@ -152,25 +194,4 @@ func (u *University) showAccepted() {
 		}
 		fmt.Println()
 	}
-}
-
-func main() {
-	var nApplicants int
-	fmt.Scanln(&nApplicants)
-
-	file, err := os.Open("/Users/guty/PycharmProjects/UAP/University Admission Procedure/stage7/applicant_list_7.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	u := University{
-		applicantScores:      make(map[string][]float64),
-		applicantPreferences: make(map[string][]string),
-		finals:               make(map[string][]ExamResult),
-	}
-	u.getApplications(file)
-	u.chooseFaculty(nApplicants)
-	u.prepareFinalOrder()
-	u.showAccepted()
 }

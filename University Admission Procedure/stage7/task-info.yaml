@@ -1,5 +1,7 @@
 type: edu
 files:
+- name: test/__init__.py
+  visible: false
 - name: tests.py
   visible: false
 - name: test/application_list.py
@@ -8,15 +10,7 @@ files:
   visible: true
 - name: university_stage7.go
   visible: true
-- name: test/__init__.py
-  visible: false
-- name: physics.txt
+- name: hstest/stage/plotting_test.py
   visible: true
-- name: mathematics.txt
-  visible: true
-- name: chemistry.txt
-  visible: true
-- name: engineering.txt
-  visible: true
-- name: biotech.txt
+- name: hstest/testing/runner/plot_testing_runner.py
   visible: true
