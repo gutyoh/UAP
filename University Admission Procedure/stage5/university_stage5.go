@@ -3,7 +3,7 @@ package main
 /*
 [University Admission Procedure - Stage 5/7: Special knowledge](https://hyperskill.org/projects/163/stages/848/implement)
 -------------------------------------------------------------------------------
-##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
+[Methods in Go](https://hyperskill.org/learn/topic/1928)
 */
 
 import (
