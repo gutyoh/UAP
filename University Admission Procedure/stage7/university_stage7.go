@@ -1,9 +1,9 @@
 package main
 
 /*
-[University Admission Procedure - Stage 5/7: Special knowledge](https://hyperskill.org/projects/163/stages/848/implement)
+[University Admission Procedure - Stage 7/7: Something special](https://hyperskill.org/projects/163/stages/850/implement)
 -------------------------------------------------------------------------------
-##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
+[Math package] **TODO**
 */
 
 import (
@@ -158,7 +158,7 @@ func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
 
-	file, err := os.Open("/Users/guty/PycharmProjects/UAP/University Admission Procedure/stage7/applicant_list_7.txt")
+	file, err := os.Open("./applicant_list_7.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
