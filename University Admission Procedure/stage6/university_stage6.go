@@ -151,7 +151,7 @@ func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
 
-	file, err := os.Open("/Users/guty/PycharmProjects/UAP/University Admission Procedure/stage6/applicant_list_6.txt")
+	file, err := os.Open("./applicant_list_6.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
