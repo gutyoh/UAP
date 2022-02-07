@@ -1,7 +1,7 @@
 package main
 
 /*
-[University Admission Procedure - Stage 5/7: Special knowledge](https://hyperskill.org/projects/163/stages/848/implement)
+[University Admission Procedure - Stage 6/7: Extensive training](https://hyperskill.org/projects/163/stages/849/implement)
 -------------------------------------------------------------------------------
 ##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
 */
