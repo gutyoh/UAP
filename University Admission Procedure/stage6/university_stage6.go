@@ -1,11 +1,5 @@
 package main
 
-/*
-[University Admission Procedure - Stage 5/7: Special knowledge](https://hyperskill.org/projects/163/stages/848/implement)
--------------------------------------------------------------------------------
-##### 🚫 NO NEW TOPICS REQUIRED 🚫 #####
-*/
-
 import (
 	"bufio"
 	"fmt"
@@ -24,35 +18,29 @@ var orderedDepartments = []string{
 	"Physics",
 }
 
-type (
-	Applicant struct {
-		fullName string
-	}
-
-	University struct {
-		applicants           []Applicant
-		applicantScores      map[string][]float64
-		applicantPreferences map[string][]string
-
-		finals map[string][]ExamResult
-	}
-
-	ExamResult struct {
-		Applicant
-		score float64
-	}
-)
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
+type Departments struct {
+	depName        string
+	FinalApplicant []FinalApplicant
 }
 
-func (u *University) getApplications(file *os.File) {
+type FinalApplicant struct {
+	fullName string
+	score    float64
+}
+
+type ApplicantPreferences struct {
+	fullName    string
+	scores      []float64
+	departments []string
+}
+
+type Exam struct {
+	depName string
+	examNum []int
+}
+
+func readApplicantPreferences(file *os.File) []ApplicantPreferences {
+	var a []ApplicantPreferences
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), " ")
@@ -62,89 +50,79 @@ func (u *University) getApplications(file *os.File) {
 		mathScore, _ := strconv.ParseFloat(parts[4], 64)
 		engScore, _ := strconv.ParseFloat(parts[5], 64)
 
+		// Here we create a new variable 'specialScore' to add the new **special score**!
+		// specialScore, _ := strconv.ParseFloat(parts[6], 64)
+
 		scores := []float64{phyScore, chemScore, mathScore, engScore}
-		fullName := parts[0] + " " + parts[1]
 
-		u.applicants = append(u.applicants, Applicant{fullName})
-		u.applicantScores[fullName] = scores
-		u.applicantPreferences[fullName] = parts[6:]
-	}
-}
-
-func (u *University) chooseFaculty(nApplicants int) {
-	accepted := make([]string, 0, len(u.applicants))
-	for i := 0; i < 3; i++ {
-		for _, dep := range orderedDepartments {
-			u.sortByMajorScore(dep)
-			for _, a := range u.applicants {
-				if contains(accepted, a.fullName) ||
-					len(u.finals[dep]) == nApplicants ||
-					u.applicantPreferences[a.fullName][i] != dep {
-					continue
-				}
-				u.finals[dep] = append(
-					u.finals[dep], ExamResult{a, u.majorScoreForDepartment(a, dep)},
-				)
-				accepted = append(accepted, a.fullName)
-			}
-		}
-	}
-}
-
-func (u *University) majorScoreForDepartment(a Applicant, dep string) float64 {
-	switch dep {
-	case "Physics":
-		return (u.applicantScores[a.fullName][0] + u.applicantScores[a.fullName][2]) / 2
-	case "Biotech":
-		return (u.applicantScores[a.fullName][0] + u.applicantScores[a.fullName][1]) / 2
-	case "Mathematics":
-		return u.applicantScores[a.fullName][2]
-	case "Engineering":
-		return (u.applicantScores[a.fullName][3] + u.applicantScores[a.fullName][2]) / 2
-	default: // Chemistry
-		return u.applicantScores[a.fullName][1]
-	}
-}
-
-func (u *University) sortByMajorScore(dep string) {
-	sort.Slice(u.applicants, func(i, j int) bool {
-		first, second := u.applicants[i], u.applicants[j]
-		if u.majorScoreForDepartment(first, dep) != u.majorScoreForDepartment(second, dep) {
-			return u.majorScoreForDepartment(first, dep) > u.majorScoreForDepartment(second, dep)
-		}
-		return first.fullName < second.fullName
-	})
-}
-
-func (u *University) prepareFinalOrder() {
-	for _, dep := range orderedDepartments {
-		sort.Slice(u.finals[dep], func(i, j int) bool {
-			first, second := u.finals[dep][i], u.finals[dep][j]
-			if first.score != second.score {
-				return first.score > second.score
-			}
-			return first.fullName < second.fullName
+		a = append(a, ApplicantPreferences{
+			parts[0] + " " + parts[1], scores, parts[6:],
 		})
 	}
+	return a
 }
 
-func (u *University) showAccepted() {
-	for _, dep := range orderedDepartments {
-		fmt.Println(dep)
-		fileName := strings.ToLower(dep) + ".txt"
-		file, err := os.Create(fileName)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, v := range u.finals[dep] {
-			fmt.Printf("%s %.2f\n", v.fullName, v.score)
-			_, err = fmt.Fprintf(file, "%s %.2f\n", v.fullName, v.score)
-			if err != nil {
-				log.Fatal(err)
+func sortByDept(a []ApplicantPreferences, dep string) []ApplicantPreferences {
+	switch dep {
+	case "Biotech":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := (a[i].scores[0] + a[i].scores[1]) / 2
+			maxScoreJ := (a[j].scores[0] + a[j].scores[1]) / 2
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
 			}
-		}
-		fmt.Println()
+			return strings.Split(a[i].fullName, " ")[0] < strings.Split(a[j].fullName, " ")[0]
+		})
+	case "Chemistry":
+		sort.Slice(a, func(i, j int) bool {
+			if a[i].scores[1] != a[j].scores[1] {
+				return a[i].scores[1] > a[j].scores[1]
+			}
+			return strings.Split(a[i].fullName, " ")[0] < strings.Split(a[j].fullName, " ")[0]
+		})
+	case "Engineering":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := (a[i].scores[3] + a[i].scores[2]) / 2
+			maxScoreJ := (a[j].scores[3] + a[j].scores[2]) / 2
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return strings.Split(a[i].fullName, " ")[0] < strings.Split(a[j].fullName, " ")[0]
+		})
+	case "Mathematics":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := a[i].scores[2]
+			maxScoreJ := a[j].scores[2]
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return strings.Split(a[i].fullName, " ")[0] < strings.Split(a[j].fullName, " ")[0]
+		})
+	case "Physics":
+		sort.Slice(a, func(i, j int) bool {
+			maxScoreI := (a[i].scores[0] + a[i].scores[2]) / 2
+			maxScoreJ := (a[j].scores[0] + a[j].scores[2]) / 2
+
+			if maxScoreI != maxScoreJ {
+				return maxScoreI > maxScoreJ
+			}
+			return strings.Split(a[i].fullName, " ")[0] < strings.Split(a[j].fullName, " ")[0]
+		})
 	}
+	return a
+}
+
+func removeApplicant(a []ApplicantPreferences, fullName string) []ApplicantPreferences {
+	for i, v := range a {
+		if v.fullName == fullName {
+			a = append(a[:i], a[i+1:]...)
+			return a
+		}
+	}
+	return a
 }
 
 func main() {
@@ -157,13 +135,60 @@ func main() {
 	}
 	defer file.Close()
 
-	u := University{
-		applicantScores:      make(map[string][]float64),
-		applicantPreferences: make(map[string][]string),
-		finals:               make(map[string][]ExamResult),
+	applicants := readApplicantPreferences(file)
+
+	exam := map[string][]int{
+		"Biotech":     {0, 1},
+		"Chemistry":   {1, 1},
+		"Engineering": {2, 3},
+		"Mathematics": {2, 2},
+		"Physics":     {0, 2},
 	}
-	u.getApplications(file)
-	u.chooseFaculty(nApplicants)
-	u.prepareFinalOrder()
-	u.showAccepted()
+
+	departments := map[string][]FinalApplicant{
+		"Biotech":     {},
+		"Chemistry":   {},
+		"Engineering": {},
+		"Mathematics": {},
+		"Physics":     {},
+	}
+
+	for i := 0; i < 3; i++ {
+		for _, dep := range orderedDepartments {
+			applicantsSorted := sortByDept(applicants, dep)
+			for _, applicant := range applicantsSorted {
+				if applicant.departments[i] == dep && len(departments[dep]) < nApplicants {
+					score := (applicant.scores[exam[dep][0]] + applicant.scores[exam[dep][1]]) / 2
+
+					departments[dep] = append(departments[dep], FinalApplicant{applicant.fullName, score})
+
+					// remove 'applicant' from 'applicants' - esto esta borrando a applicants y por eso el sort falla
+					applicants = removeApplicant(applicants, applicant.fullName)
+				}
+			}
+		}
+	}
+
+	for _, dep := range orderedDepartments {
+		sort.Slice(departments[dep], func(i, j int) bool {
+			if departments[dep][i].score != departments[dep][j].score {
+				return departments[dep][i].score > departments[dep][j].score
+			}
+			return departments[dep][i].fullName < departments[dep][j].fullName
+		})
+	}
+
+	for _, dep := range orderedDepartments {
+		fmt.Println(dep)
+		file, err = os.Create(strings.ToLower(dep) + ".txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, v := range departments[dep] {
+			fmt.Printf("%s %.2f\n", v.fullName, v.score)
+			fmt.Fprintf(file, "%s %.2f\n", v.fullName, v.score)
+		}
+		fmt.Println()
+	}
 }
