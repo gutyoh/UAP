@@ -4,19 +4,7 @@ files:
   visible: false
 - name: test/application_list.py
   visible: false
-- name: applicant_list_6.txt
-  visible: true
 - name: university_stage6.go
-  visible: true
-- name: physics.txt
-  visible: true
-- name: mathematics.txt
-  visible: true
-- name: chemistry.txt
-  visible: true
-- name: engineering.txt
-  visible: true
-- name: biotech.txt
   visible: true
 - name: test/__init__.py
   visible: false
