@@ -24,7 +24,7 @@ var orderedDepartments = []string{
 	"Physics",
 }
 
-type FinalApplicant struct {
+type Applicant struct {
 	fullName string
 	score    float64
 }
@@ -62,6 +62,23 @@ func contains(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func chooseFaculty(applicants []ApplicantPreferences, nApplicants int, departments map[string][]Applicant, exam map[string][]int, used []string) {
+	for i := 0; i < 3; i++ {
+		for _, dep := range orderedDepartments {
+			applicantsSorted := sortByDept(applicants, dep)
+			for _, applicant := range applicantsSorted {
+				if applicant.departments[i] == dep && len(departments[dep]) < nApplicants && !contains(used, applicant.fullName) {
+					score := applicant.scores[exam[dep][0]]
+
+					departments[dep] = append(departments[dep], Applicant{applicant.fullName, score})
+
+					used = append(used, applicant.fullName)
+				}
+			}
+		}
+	}
 }
 
 func sortByDept(a []ApplicantPreferences, dep string) []ApplicantPreferences {
@@ -105,6 +122,27 @@ func sortByDept(a []ApplicantPreferences, dep string) []ApplicantPreferences {
 	return a
 }
 
+func prepareFinalOrder(departments map[string][]Applicant) {
+	for _, dep := range orderedDepartments {
+		sort.Slice(departments[dep], func(i, j int) bool {
+			if departments[dep][i].score != departments[dep][j].score {
+				return departments[dep][i].score > departments[dep][j].score
+			}
+			return departments[dep][i].fullName < departments[dep][j].fullName
+		})
+	}
+}
+
+func showAccepted(departments map[string][]Applicant) {
+	for _, dep := range orderedDepartments {
+		fmt.Println(dep)
+		for _, v := range departments[dep] {
+			fmt.Printf("%s %.2f\n", v.fullName, v.score)
+		}
+		fmt.Println()
+	}
+}
+
 func main() {
 	var nApplicants int
 	fmt.Scanln(&nApplicants)
@@ -125,7 +163,7 @@ func main() {
 		"Physics":     {0},
 	}
 
-	departments := map[string][]FinalApplicant{
+	departments := map[string][]Applicant{
 		"Biotech":     {},
 		"Chemistry":   {},
 		"Engineering": {},
@@ -135,35 +173,7 @@ func main() {
 
 	var used []string
 
-	for i := 0; i < 3; i++ {
-		for _, dep := range orderedDepartments {
-			applicantsSorted := sortByDept(applicants, dep)
-			for _, applicant := range applicantsSorted {
-				if applicant.departments[i] == dep && len(departments[dep]) < nApplicants && !contains(used, applicant.fullName) {
-					score := applicant.scores[exam[dep][0]]
-
-					departments[dep] = append(departments[dep], FinalApplicant{applicant.fullName, score})
-
-					used = append(used, applicant.fullName)
-				}
-			}
-		}
-	}
-
-	for _, dep := range orderedDepartments {
-		sort.Slice(departments[dep], func(i, j int) bool {
-			if departments[dep][i].score != departments[dep][j].score {
-				return departments[dep][i].score > departments[dep][j].score
-			}
-			return departments[dep][i].fullName < departments[dep][j].fullName
-		})
-	}
-
-	for _, dep := range orderedDepartments {
-		fmt.Println(dep)
-		for _, v := range departments[dep] {
-			fmt.Printf("%s %.2f\n", v.fullName, v.score)
-		}
-		fmt.Println()
-	}
+	chooseFaculty(applicants, nApplicants, departments, exam, used)
+	prepareFinalOrder(departments)
+	showAccepted(departments)
 }

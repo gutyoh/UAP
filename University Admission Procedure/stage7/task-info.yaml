@@ -14,3 +14,13 @@ files:
   visible: true
 - name: hstest/testing/runner/plot_testing_runner.py
   visible: true
+- name: physics.txt
+  visible: true
+- name: mathematics.txt
+  visible: true
+- name: chemistry.txt
+  visible: true
+- name: engineering.txt
+  visible: true
+- name: biotech.txt
+  visible: true
